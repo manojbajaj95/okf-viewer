@@ -1,6 +1,6 @@
 {
   "name": "okf-lib",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Browse an Open Knowledge Format (OKF) bundle via a local CLI and Next.js viewer",
   "license": "MIT",
   "type": "module",
