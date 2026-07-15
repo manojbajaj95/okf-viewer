@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import type { Components } from "react-markdown";
-import { buttonVariants } from "@/components/ui/button";
 import { bundlePathToHref, resolveMarkdownHref } from "@/lib/bundle/url";
 import { cn } from "@/lib/utils";
+
+const linkClass =
+  "font-medium text-primary underline-offset-4 transition-colors duration-150 hover:underline motion-reduce:transition-none";
 
 export function createBundleLinkComponent(
   fromRelPath: string,
@@ -15,7 +17,6 @@ export function createBundleLinkComponent(
     }
 
     const resolved = resolveMarkdownHref(href, fromRelPath);
-    const className = cn(buttonVariants({ variant: "link" }), "h-auto p-0");
 
     if (resolved.kind === "external" && resolved.target) {
       return (
@@ -23,7 +24,7 @@ export function createBundleLinkComponent(
           href={resolved.target}
           target="_blank"
           rel="noopener noreferrer"
-          className={className}
+          className={linkClass}
         >
           {children}
         </a>
@@ -32,12 +33,16 @@ export function createBundleLinkComponent(
 
     if (resolved.kind === "bundle" && resolved.target) {
       return (
-        <Link href={bundlePathToHref(resolved.target)} className={className}>
+        <Link href={bundlePathToHref(resolved.target)} className={linkClass}>
           {children}
         </Link>
       );
     }
 
-    return <span className="text-muted-foreground">{children}</span>;
+    return (
+      <span className={cn("text-muted-foreground")} title="Missing Concept">
+        {children}
+      </span>
+    );
   };
 }

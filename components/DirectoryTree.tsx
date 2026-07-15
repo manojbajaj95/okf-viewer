@@ -26,16 +26,15 @@ import {
 } from "@/components/ui/sidebar";
 import type { TreeNode } from "@/lib/bundle/types";
 import { bundlePathToHref } from "@/lib/bundle/url";
+import { cn } from "@/lib/utils";
 
-function isActive(pathname: string, href: string): boolean {
-  if (href === "/") {
-    return pathname === "/";
-  }
-  return pathname === href || pathname.startsWith(`${href}/`);
+function isExactActive(pathname: string, href: string): boolean {
+  return pathname === href;
 }
 
 function pathContainsActive(node: TreeNode, pathname: string): boolean {
-  if (isActive(pathname, bundlePathToHref(node.path))) {
+  const href = bundlePathToHref(node.path);
+  if (pathname === href || (href !== "/" && pathname.startsWith(`${href}/`))) {
     return true;
   }
   return node.children?.some((c) => pathContainsActive(c, pathname)) ?? false;
@@ -48,10 +47,13 @@ function FileIcon({ kind }: { kind: TreeNode["kind"] }) {
   return <FileTextIcon />;
 }
 
+const chevronClass =
+  "inline-flex size-7 shrink-0 items-center justify-center rounded-md text-sidebar-foreground/70 transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground motion-reduce:transition-none";
+
 function TreeNodes({
   nodes,
   pathname,
-  nested,
+  nested = false,
 }: {
   nodes: TreeNode[];
   pathname: string;
@@ -61,32 +63,39 @@ function TreeNodes({
     <>
       {nodes.map((node) => {
         const href = bundlePathToHref(node.path);
-        const active = isActive(pathname, href);
+        const active = isExactActive(pathname, href);
 
         if (node.kind === "dir") {
           const open = pathContainsActive(node, pathname);
           const label = node.name;
+          const hasChildren = (node.children?.length ?? 0) > 0;
 
-          if (nested) {
+          if (!hasChildren) {
+            if (nested) {
+              return (
+                <SidebarMenuSubItem key={node.path || node.name}>
+                  <SidebarMenuSubButton
+                    isActive={active}
+                    render={<Link href={href} />}
+                  >
+                    <FolderIcon />
+                    <span className="truncate">{label}</span>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              );
+            }
+
             return (
-              <SidebarMenuSubItem key={node.path || node.name}>
-                <SidebarMenuSubButton
+              <SidebarMenuItem key={node.path || node.name}>
+                <SidebarMenuButton
                   isActive={active}
+                  tooltip={label}
                   render={<Link href={href} />}
                 >
                   <FolderIcon />
                   <span className="truncate">{label}</span>
-                </SidebarMenuSubButton>
-                {node.children && node.children.length > 0 ? (
-                  <SidebarMenuSub>
-                    <TreeNodes
-                      nodes={node.children}
-                      pathname={pathname}
-                      nested
-                    />
-                  </SidebarMenuSub>
-                ) : null}
-              </SidebarMenuSubItem>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             );
           }
 
@@ -96,37 +105,76 @@ function TreeNodes({
               defaultOpen={open}
               className="group/collapsible"
             >
-              <SidebarMenuItem>
-                <div className="flex w-full items-center">
-                  <SidebarMenuButton
-                    isActive={active}
-                    tooltip={label}
-                    className="flex-1"
-                    render={<Link href={href} />}
-                  >
-                    <FolderIcon />
-                    <span className="truncate">{label}</span>
-                  </SidebarMenuButton>
-                  <CollapsibleTrigger className="inline-flex size-7 shrink-0 items-center justify-center rounded-md text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
-                    <ChevronRightIcon className="size-4 transition-transform group-data-[open]/collapsible:rotate-90" />
-                    <span className="sr-only">Toggle {label}</span>
-                  </CollapsibleTrigger>
-                </div>
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-                    <TreeNodes
-                      nodes={node.children ?? []}
-                      pathname={pathname}
-                      nested
-                    />
-                  </SidebarMenuSub>
-                </CollapsibleContent>
-              </SidebarMenuItem>
+              {nested ? (
+                <SidebarMenuSubItem>
+                  <div className="flex w-full items-center gap-0.5">
+                    <SidebarMenuSubButton
+                      isActive={active}
+                      className="flex-1"
+                      render={<Link href={href} />}
+                    >
+                      <FolderIcon />
+                      <span className="truncate">{label}</span>
+                    </SidebarMenuSubButton>
+                    <CollapsibleTrigger className={chevronClass}>
+                      <ChevronRightIcon
+                        className={cn(
+                          "size-3.5 transition-transform duration-150 motion-reduce:transition-none",
+                          "group-data-[open]/collapsible:rotate-90",
+                        )}
+                      />
+                      <span className="sr-only">Toggle {label}</span>
+                    </CollapsibleTrigger>
+                  </div>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      <TreeNodes
+                        nodes={node.children ?? []}
+                        pathname={pathname}
+                        nested
+                      />
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuSubItem>
+              ) : (
+                <SidebarMenuItem>
+                  <div className="flex w-full items-center gap-0.5">
+                    <SidebarMenuButton
+                      isActive={active}
+                      tooltip={label}
+                      className="flex-1"
+                      render={<Link href={href} />}
+                    >
+                      <FolderIcon />
+                      <span className="truncate">{label}</span>
+                    </SidebarMenuButton>
+                    <CollapsibleTrigger className={chevronClass}>
+                      <ChevronRightIcon
+                        className={cn(
+                          "size-3.5 transition-transform duration-150 motion-reduce:transition-none",
+                          "group-data-[open]/collapsible:rotate-90",
+                        )}
+                      />
+                      <span className="sr-only">Toggle {label}</span>
+                    </CollapsibleTrigger>
+                  </div>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      <TreeNodes
+                        nodes={node.children ?? []}
+                        pathname={pathname}
+                        nested
+                      />
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              )}
             </Collapsible>
           );
         }
 
         const label = node.name.replace(/\.md$/i, "");
+
         if (nested) {
           return (
             <SidebarMenuSubItem key={node.path || node.name}>
@@ -134,6 +182,7 @@ function TreeNodes({
                 isActive={active}
                 render={<Link href={href} />}
               >
+                <FileIcon kind={node.kind} />
                 <span className="truncate">{label}</span>
               </SidebarMenuSubButton>
             </SidebarMenuSubItem>
@@ -161,8 +210,8 @@ export function DirectoryTree({ nodes }: { nodes: TreeNode[] }) {
   const pathname = usePathname();
 
   return (
-    <SidebarGroup>
-      <SidebarGroupLabel>Bundle</SidebarGroupLabel>
+    <SidebarGroup className="pt-1">
+      <SidebarGroupLabel className="sr-only">Directory Tree</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           <TreeNodes nodes={nodes} pathname={pathname} />
