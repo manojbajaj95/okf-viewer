@@ -8,21 +8,13 @@
     "okf-lib": "./bin/okf-lib.mjs"
   },
   "files": [
-    "app",
     "bin",
-    "lib",
-    "public",
-    "next.config.ts",
-    "postcss.config.mjs",
-    "tsconfig.json",
-    "package.json",
-    "README.md",
-    "LICENSE",
-    "CONTEXT.md"
+    "lib/cli-args.mjs",
+    ".next/standalone"
   ],
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && node ./scripts/postbuild.mjs",
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write",
@@ -46,9 +38,13 @@
     "provenance": true
   },
   "dependencies": {
-    "next": "16.2.10",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "@base-ui/react": "^1.6.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.24.0",
+    "shadcn": "^4.13.0",
+    "tailwind-merge": "^3.6.0",
+    "tw-animate-css": "^1.4.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
@@ -56,6 +52,13 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "gray-matter": "^4.0.3",
+    "next": "16.2.10",
+    "next-themes": "^0.4.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^3.2.4"

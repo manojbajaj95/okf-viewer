@@ -15,6 +15,13 @@ bun run test
 bun run build
 ```
 
+Smoke the viewer locally:
+
+```bash
+bun run build
+bun run okf-lib -- open ./fixtures/sample-bundle --no-open
+```
+
 ## Pull requests
 
 1. Branch from `main`.
