@@ -27,11 +27,11 @@ OKF_BUNDLE_PATH=./fixtures/sample-bundle bun run dev
 ## Layout
 
 - `bin/okf-viewer.mjs` — CLI entry (prefers `.next/standalone/server.js`)
-- `lib/cli-args.mjs` — CLI argv parser
-- `lib/bundle/` — server-side Bundle reader (paths, tree, readEntry); `url.ts` is isomorphic for link rewriting
-- `app/(viewer)/layout.tsx` — Directory Tree shell
-- `app/(viewer)/[[...slug]]/page.tsx` — Concept / Index / Log / missing pane
-- `components/` — AppSidebar, DirectoryTree, EntryView, MarkdownBody, ModeToggle; shadcn primitives in `components/ui/`
+- `src/lib/cli-args.mjs` — CLI argv parser
+- `src/lib/bundle/` — server-side Bundle reader (paths, tree, readEntry); `url.ts` is isomorphic for link rewriting
+- `src/app/(viewer)/layout.tsx` — Directory Tree shell
+- `src/app/(viewer)/[[...slug]]/page.tsx` — Concept / Index / Log / missing pane
+- `src/components/` — AppSidebar, DirectoryTree, EntryView, MarkdownBody, ModeToggle; shadcn primitives in `src/components/ui/`
 - Themes: `next-themes` via `ThemeProvider` (`attribute="class"`); ModeToggle in sidebar footer
 - `fixtures/sample-bundle/` — sample OKF for tests and smoke
 - `CONTEXT.md` — glossary only
@@ -41,4 +41,4 @@ OKF_BUNDLE_PATH=./fixtures/sample-bundle bun run dev
 - Conventional Commits (`feat:`, `fix:`, `chore:`, …) — required for Release Please.
 - Lint/format: Biome (`bun run lint` / `bun run format`).
 - Prefer YAGNI: browse-only v0.1; no graph/search/validator/edit.
-- Never import `lib/bundle/read.ts` or `paths.ts` (fs) from client components — use `lib/bundle/url.ts` instead.
+- Never import `src/lib/bundle/read.ts` or `paths.ts` (fs) from client components — use `src/lib/bundle/url.ts` instead.

@@ -6,7 +6,7 @@ import { resolveMarkdownHref } from "./url";
 
 const fixtureRoot = join(
   dirname(fileURLToPath(import.meta.url)),
-  "../../fixtures/sample-bundle",
+  "../../../fixtures/sample-bundle",
 );
 
 describe("listTree", () => {

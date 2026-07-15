@@ -5,7 +5,7 @@ import { bundlePathToHref, resolveBundlePath, slugToRelPath } from "./paths";
 
 const fixtureRoot = join(
   dirname(fileURLToPath(import.meta.url)),
-  "../../fixtures/sample-bundle",
+  "../../../fixtures/sample-bundle",
 );
 
 describe("resolveBundlePath", () => {

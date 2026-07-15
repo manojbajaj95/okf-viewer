@@ -13,7 +13,7 @@
       "!.next",
       "!dist",
       "!build",
-      "!components/ui"
+      "!src/components/ui"
     ]
   },
   "formatter": {

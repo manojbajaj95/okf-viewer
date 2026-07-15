@@ -9,7 +9,7 @@
   },
   "files": [
     "bin",
-    "lib/cli-args.mjs",
+    "src/lib/cli-args.mjs",
     ".next/standalone"
   ],
   "scripts": {
