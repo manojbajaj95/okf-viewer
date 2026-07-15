@@ -3,7 +3,7 @@
   "packages": {
     ".": {
       "release-type": "node",
-      "package-name": "okf-lib",
+      "package-name": "okf-viewer",
       "changelog-path": "CHANGELOG.md"
     }
   }

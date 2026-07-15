@@ -10,7 +10,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = join(__dirname, "..");
 
 function usage(exitCode = 0) {
-  console.log(`Usage: okf-lib <command> [options]
+  console.log(`Usage: okf-viewer <command> [options]
 
 Commands:
   open [path]   Open a local OKF Knowledge Bundle (default: .)
@@ -76,7 +76,7 @@ function nextBin() {
   );
   if (!existsSync(candidate)) {
     console.error(
-      "okf-lib: next is not installed. Run from a built checkout or install dependencies.",
+      "okf-viewer: next is not installed. Run from a built checkout or install dependencies.",
     );
     process.exit(1);
   }
@@ -99,7 +99,7 @@ function standaloneServer() {
 async function openBundle(pathArg, portArg, shouldOpenBrowser) {
   const bundlePath = resolve(process.cwd(), pathArg ?? ".");
   if (!existsSync(bundlePath)) {
-    console.error(`okf-lib: path does not exist: ${bundlePath}`);
+    console.error(`okf-viewer: path does not exist: ${bundlePath}`);
     process.exit(1);
   }
 
@@ -161,12 +161,12 @@ if (parsed.help) {
   usage(0);
 }
 if (parsed.error) {
-  console.error(`okf-lib: ${parsed.error}`);
+  console.error(`okf-viewer: ${parsed.error}`);
   usage(1);
 }
 if (parsed.command === "open") {
   await openBundle(parsed.path, parsed.port, parsed.openBrowser !== false);
 } else {
-  console.error(`okf-lib: unknown command ${parsed.command ?? "(none)"}`);
+  console.error(`okf-viewer: unknown command ${parsed.command ?? "(none)"}`);
   usage(1);
 }

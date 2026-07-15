@@ -19,7 +19,7 @@ Smoke the viewer locally:
 
 ```bash
 bun run build
-bun run okf-lib -- open ./fixtures/sample-bundle --no-open
+bun run okf-viewer -- open ./fixtures/sample-bundle --no-open
 ```
 
 ## Pull requests

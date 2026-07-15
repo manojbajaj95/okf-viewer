@@ -5,8 +5,8 @@ A read-only consumer that lets a human browse an Open Knowledge Format (OKF) kno
 ## Language
 
 **Viewer**:
-The application that Opens a Knowledge Bundle and presents its Concepts for reading and navigation. Published on npm as the package name `okf-lib` (availability constraint); that name does not mean this product is a library API.
-_Avoid_: Catalog, explorer, visualizer (unless referring to a graph surface); treating `okf-lib` as a programmable SDK
+The application that Opens a Knowledge Bundle and presents its Concepts for reading and navigation. Published on npm as the package name `okf-viewer`.
+_Avoid_: Catalog, explorer, visualizer (unless referring to a graph surface); treating the Viewer as a programmable SDK
 
 **Knowledge Bundle**:
 A self-contained directory tree of markdown Concept documents conforming to OKF. The unit of distribution and the unit the Viewer opens.

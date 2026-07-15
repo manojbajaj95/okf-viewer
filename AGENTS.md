@@ -4,12 +4,12 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-# Agent notes — okf-lib / OKF Viewer
+# Agent notes — okf-viewer / OKF Viewer
 
 ## Product
 
-- npm package name: `okf-lib`; product term: **Viewer** (see `CONTEXT.md`).
-- Primary command: `okf-lib open [path]` → local Next.js standalone server → browser.
+- npm package name: `okf-viewer`; product term: **Viewer** (see `CONTEXT.md`).
+- Primary command: `okf-viewer open [path]` → local Next.js standalone server → browser.
 - Bundle path is passed as `OKF_BUNDLE_PATH` (absolute). Do not add browser folder pickers or remote Open in v0.1.
 
 ## Commands
@@ -20,13 +20,13 @@ bun run lint
 bun run typecheck
 bun run test
 bun run build          # next build + scripts/postbuild.mjs (standalone static copy)
-bun run okf-lib -- open ./fixtures/sample-bundle --no-open
+bun run okf-viewer -- open ./fixtures/sample-bundle --no-open
 OKF_BUNDLE_PATH=./fixtures/sample-bundle bun run dev
 ```
 
 ## Layout
 
-- `bin/okf-lib.mjs` — CLI entry (prefers `.next/standalone/server.js`)
+- `bin/okf-viewer.mjs` — CLI entry (prefers `.next/standalone/server.js`)
 - `lib/cli-args.mjs` — CLI argv parser
 - `lib/bundle/` — server-side Bundle reader (paths, tree, readEntry); `url.ts` is isomorphic for link rewriting
 - `app/(viewer)/layout.tsx` — Directory Tree shell

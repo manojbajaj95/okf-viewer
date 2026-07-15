@@ -23,7 +23,7 @@ export default async function ViewerPage({
         <AlertTitle>Cannot open Bundle</AlertTitle>
         <AlertDescription>
           {message}. Run via{" "}
-          <code className="rounded bg-muted px-1">okf-lib open [path]</code>.
+          <code className="rounded bg-muted px-1">okf-viewer open [path]</code>.
         </AlertDescription>
       </Alert>
     );

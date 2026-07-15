@@ -1,11 +1,11 @@
 {
-  "name": "okf-lib",
+  "name": "okf-viewer",
   "version": "0.1.0",
   "description": "Browse an Open Knowledge Format (OKF) bundle via a local CLI and Next.js viewer",
   "license": "MIT",
   "type": "module",
   "bin": {
-    "okf-lib": "./bin/okf-lib.mjs"
+    "okf-viewer": "./bin/okf-viewer.mjs"
   },
   "files": [
     "bin",
@@ -20,7 +20,7 @@
     "format": "biome format --write",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "okf-lib": "node ./bin/okf-lib.mjs"
+    "okf-viewer": "node ./bin/okf-viewer.mjs"
   },
   "engines": {
     "node": ">=22.14.0"
