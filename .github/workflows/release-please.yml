@@ -1,5 +1,10 @@
 name: Release Please
 
+# Opens/updates a Release PR (CHANGELOG + version bump).
+# Merge that PR → tag + GitHub Release → Publish workflow (OIDC to npm).
+# Commits/PR titles must follow Conventional Commits:
+# https://www.conventionalcommits.org/
+
 on:
   push:
     branches: [main]

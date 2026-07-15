@@ -28,6 +28,12 @@ bun run okf-viewer -- open ./fixtures/sample-bundle --no-open
 2. Use [Conventional Commits](https://www.conventionalcommits.org/) for commit subjects and the PR title (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`, `ci:`).
 3. Keep PRs focused. `main` requires review and green CI.
 
+## Releases
+
+Release Please opens a Release PR from conventional commits on `main`. Merging it tags a GitHub Release; `.github/workflows/publish.yml` then publishes to npm via [trusted publishing (OIDC)](https://docs.npmjs.com/trusted-publishers) (no `NPM_TOKEN`).
+
+One-time on npmjs.com for package `okf-viewer`: Settings → Trusted Publisher → GitHub Actions → user `manojbajaj95`, repo `okf-viewer`, workflow `publish.yml`, allow `npm publish`.
+
 ## Engineering principles
 
 - **YAGNI** — only build what v0.1 needs (browse via CLI Open).
