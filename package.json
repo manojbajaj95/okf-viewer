@@ -1,0 +1,71 @@
+{
+  "name": "okf-lib",
+  "version": "0.1.0",
+  "description": "Browse an Open Knowledge Format (OKF) bundle via a local CLI and Next.js viewer",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "okf-lib": "./bin/okf-lib.mjs"
+  },
+  "files": [
+    "app",
+    "bin",
+    "lib",
+    "public",
+    "next.config.ts",
+    "postcss.config.mjs",
+    "tsconfig.json",
+    "package.json",
+    "README.md",
+    "LICENSE",
+    "CONTEXT.md"
+  ],
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "biome check",
+    "format": "biome format --write",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "okf-lib": "node ./bin/okf-lib.mjs"
+  },
+  "engines": {
+    "node": ">=22.14.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/manojbajaj95/okf-viewer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/manojbajaj95/okf-viewer/issues"
+  },
+  "homepage": "https://github.com/manojbajaj95/okf-viewer#readme",
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "dependencies": {
+    "next": "16.2.10",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.0",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "^3.2.4"
+  },
+  "ignoreScripts": [
+    "sharp",
+    "unrs-resolver"
+  ],
+  "trustedDependencies": [
+    "sharp",
+    "unrs-resolver"
+  ]
+}
