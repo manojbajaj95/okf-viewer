@@ -13,14 +13,16 @@ describe("listTree", () => {
   it("lists dirs and markdown kinds", () => {
     const tree = listTree(fixtureRoot);
     const names = tree.map((n) => n.name);
-    expect(names).toContain("tables");
-    expect(names).toContain("datasets");
+    expect(names).toContain("operations");
+    expect(names).toContain("data");
     expect(names).toContain("index.md");
     expect(names).toContain("log.md");
     expect(names).toContain("notes.md");
 
     const orders = tree
-      .find((n) => n.name === "tables")
+      .find((n) => n.name === "data")
+      ?.children?.find((c) => c.name === "warehouse")
+      ?.children?.find((c) => c.name === "tables")
       ?.children?.find((c) => c.name === "orders.md");
     expect(orders?.kind).toBe("concept");
 
@@ -34,7 +36,7 @@ describe("listTree", () => {
 
 describe("readEntry", () => {
   it("reads a concept by path without .md", () => {
-    const entry = readEntry("tables/orders", fixtureRoot);
+    const entry = readEntry("data/warehouse/tables/orders", fixtureRoot);
     expect(entry.kind).toBe("concept");
     if (entry.kind === "concept") {
       expect(entry.frontmatter.type).toBe("BigQuery Table");
@@ -44,7 +46,7 @@ describe("readEntry", () => {
   });
 
   it("prefers index body for directories", () => {
-    const entry = readEntry("tables", fixtureRoot);
+    const entry = readEntry("data/warehouse/tables", fixtureRoot);
     expect(entry.kind).toBe("directory");
     if (entry.kind === "directory") {
       expect(entry.indexBody).toContain("Orders");
@@ -53,7 +55,7 @@ describe("readEntry", () => {
   });
 
   it("returns missing for unknown paths", () => {
-    const entry = readEntry("tables/nope", fixtureRoot);
+    const entry = readEntry("data/warehouse/tables/nope", fixtureRoot);
     expect(entry.kind).toBe("missing");
   });
 
@@ -66,18 +68,27 @@ describe("readEntry", () => {
 describe("resolveMarkdownHref", () => {
   it("classifies external links", () => {
     expect(
-      resolveMarkdownHref("https://example.com", "tables/orders.md").kind,
+      resolveMarkdownHref(
+        "https://example.com",
+        "data/warehouse/tables/orders.md",
+      ).kind,
     ).toBe("external");
   });
 
   it("resolves bundle-absolute links", () => {
-    const r = resolveMarkdownHref("/tables/customers.md", "tables/orders.md");
+    const r = resolveMarkdownHref(
+      "/data/warehouse/tables/customers.md",
+      "data/warehouse/tables/orders.md",
+    );
     expect(r.kind).toBe("bundle");
-    expect(r.target).toBe("tables/customers.md");
+    expect(r.target).toBe("data/warehouse/tables/customers.md");
   });
 
   it("resolves relative links", () => {
-    const r = resolveMarkdownHref("./customers.md", "tables/orders.md");
+    const r = resolveMarkdownHref(
+      "./customers.md",
+      "data/warehouse/tables/orders.md",
+    );
     expect(r.kind).toBe("bundle");
     expect(r.target).toMatch(/customers\.md$/);
   });

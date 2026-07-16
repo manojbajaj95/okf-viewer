@@ -12,7 +12,9 @@ describe("buildBundleGraph", () => {
   it("builds nodes for concepts", () => {
     const graph = buildBundleGraph(fixtureRoot);
     expect(graph.nodes.length).toBeGreaterThanOrEqual(3);
-    const orders = graph.nodes.find((n) => n.id === "tables/orders");
+    const orders = graph.nodes.find(
+      (n) => n.id === "data/warehouse/tables/orders",
+    );
     expect(orders?.title).toBe("Orders");
     expect(orders?.type).toBe("BigQuery Table");
   });
@@ -21,14 +23,21 @@ describe("buildBundleGraph", () => {
     const graph = buildBundleGraph(fixtureRoot);
     expect(
       graph.edges.some(
-        (e) => e.from === "tables/orders" && e.to === "tables/customers",
+        (e) =>
+          e.from === "data/warehouse/tables/orders" &&
+          e.to === "data/warehouse/tables/customers",
       ),
     ).toBe(true);
   });
 
   it("indexes backlinks", () => {
     const graph = buildBundleGraph(fixtureRoot);
-    const backlinks = getBacklinksFor("tables/customers", graph);
-    expect(backlinks.some((b) => b.id === "tables/orders")).toBe(true);
+    const backlinks = getBacklinksFor(
+      "data/warehouse/tables/customers",
+      graph,
+    );
+    expect(
+      backlinks.some((b) => b.id === "data/warehouse/tables/orders"),
+    ).toBe(true);
   });
 });

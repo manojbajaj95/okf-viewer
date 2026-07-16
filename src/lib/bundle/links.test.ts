@@ -42,14 +42,15 @@ describe("extractMarkdownLinks", () => {
 
 describe("resolveConceptLinks", () => {
   it("resolves bundle links from orders concept", () => {
-    const body = readFileSync(join(fixtureRoot, "tables/orders.md"), "utf8")
+    const ordersPath = "data/warehouse/tables/orders.md";
+    const body = readFileSync(join(fixtureRoot, ordersPath), "utf8")
       .split("---\n")
       .slice(2)
       .join("---\n");
-    const targets = resolveConceptLinks("tables/orders.md", body);
-    expect(targets).toContain("tables/customers");
-    expect(targets).toContain("datasets/sales");
-    expect(targets).toContain("tables/does-not-exist");
+    const targets = resolveConceptLinks(ordersPath, body);
+    expect(targets).toContain("data/warehouse/tables/customers");
+    expect(targets).toContain("data/warehouse/datasets/pos");
+    expect(targets).toContain("data/warehouse/tables/does-not-exist");
   });
 
   it("excludes external URLs", () => {

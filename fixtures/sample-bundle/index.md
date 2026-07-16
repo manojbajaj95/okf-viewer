@@ -1,5 +1,6 @@
-# Sample sales Knowledge Bundle
+# Riverbend Cafe
 
-* [Sales dataset](datasets/sales.md) — retail sales tables
-* [Orders](tables/orders.md) — completed orders
-* [Customers](tables/customers.md) — customer dimension
+Knowledge we keep about day-to-day operations and the POS data we export to BigQuery.
+
+* [Operations](operations/index.md) — recipes, vendors, and how the floor runs
+* [Data warehouse](data/index.md) — datasets and tables from Square exports
