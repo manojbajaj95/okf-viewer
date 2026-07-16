@@ -1,7 +1,10 @@
 "use client";
 
+import type * as React from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
   Table,
@@ -15,21 +18,41 @@ import { cn } from "@/lib/utils";
 import { createBundleLinkComponent } from "./BundleLink";
 
 const prose = [
-  "max-w-prose text-foreground",
-  "[&_p]:my-3 [&_p]:leading-7 [&_p]:text-pretty",
-  "[&_h1]:mb-3 [&_h1]:mt-8 [&_h1]:text-2xl [&_h1]:font-semibold [&_h1]:tracking-tight",
-  "[&_h2]:mb-2 [&_h2]:mt-7 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:tracking-tight",
-  "[&_h3]:mb-2 [&_h3]:mt-5 [&_h3]:text-lg [&_h3]:font-semibold",
-  "[&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-5",
-  "[&_ol]:my-3 [&_ol]:list-decimal [&_ol]:pl-5",
-  "[&_li]:my-1 [&_li]:leading-7",
-  "[&_blockquote]:my-4 [&_blockquote]:rounded-md [&_blockquote]:bg-muted/70 [&_blockquote]:px-4 [&_blockquote]:py-3 [&_blockquote]:text-muted-foreground",
-  "[&_code]:rounded-md [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[0.875em]",
-  "[&_pre]:my-4 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-muted [&_pre]:p-4",
-  "[&_pre_code]:bg-transparent [&_pre_code]:p-0",
-  "[&_a]:font-medium [&_a]:text-primary [&_a]:underline-offset-4 [&_a]:transition-colors [&_a]:duration-150 hover:[&_a]:underline motion-reduce:[&_a]:transition-none",
-  "[&_img]:my-4 [&_img]:rounded-md",
+  "max-w-[72ch] space-y-5 text-foreground",
+  "[&_hr]:my-8",
+  "[&_img]:my-6 [&_img]:rounded-xl [&_img]:border [&_img]:border-border/60",
+  "[&_strong]:font-semibold",
+  "[&_em]:text-muted-foreground",
+  "[&>h1:first-child]:mt-0 [&>h2:first-child]:pt-0 [&>h3:first-child]:pt-0",
 ].join(" ");
+
+function MarkdownTable({ children }: { children?: React.ReactNode }) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-border/70 bg-card">
+      <Table>{children}</Table>
+    </div>
+  );
+}
+
+function MarkdownCodeBlock({
+  children,
+  className,
+}: React.ComponentProps<"pre">) {
+  return (
+    <Card className="overflow-hidden border-border/70 bg-card/80 py-0">
+      <CardContent className="overflow-x-auto px-4 py-4">
+        <pre
+          className={cn(
+            "font-mono text-[0.8125rem] leading-6 text-foreground",
+            className,
+          )}
+        >
+          {children}
+        </pre>
+      </CardContent>
+    </Card>
+  );
+}
 
 export function MarkdownBody({
   body,
@@ -48,13 +71,81 @@ export function MarkdownBody({
         remarkPlugins={[remarkGfm]}
         components={{
           a: BundleLink,
+          p: ({ children }) => (
+            <p className="leading-7 text-foreground/95 text-pretty">
+              {children}
+            </p>
+          ),
+          h1: ({ children }) => (
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+              {children}
+            </h1>
+          ),
+          h2: ({ children }) => (
+            <h2 className="pt-5 text-2xl font-semibold tracking-tight text-foreground">
+              {children}
+            </h2>
+          ),
+          h3: ({ children }) => (
+            <h3 className="pt-3 text-xl font-semibold tracking-tight text-foreground">
+              {children}
+            </h3>
+          ),
+          ul: ({ children }) => (
+            <ul className="list-disc space-y-2 pl-6 marker:text-muted-foreground">
+              {children}
+            </ul>
+          ),
+          ol: ({ children }) => (
+            <ol className="list-decimal space-y-2 pl-6 marker:font-medium marker:text-muted-foreground">
+              {children}
+            </ol>
+          ),
+          li: ({ children }) => (
+            <li className="leading-7 text-foreground/95">{children}</li>
+          ),
+          blockquote: ({ children }) => (
+            <Alert className="border-border/70 bg-muted/40">
+              <AlertDescription className="text-sm leading-7 text-foreground/80 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0">
+                {children}
+              </AlertDescription>
+            </Alert>
+          ),
+          code: ({ children, className }) => {
+            const isBlock =
+              typeof className === "string" &&
+              /\blanguage-|\bhljs\b/.test(className);
+
+            if (isBlock) {
+              return <code className={className}>{children}</code>;
+            }
+
+            return (
+              <code className="rounded-md border border-border/70 bg-muted px-1.5 py-0.5 font-mono text-[0.875em] text-foreground">
+                {children}
+              </code>
+            );
+          },
+          pre: ({ children, className }) => (
+            <MarkdownCodeBlock className={className}>
+              {children}
+            </MarkdownCodeBlock>
+          ),
           hr: () => <Separator className="my-8" />,
-          table: ({ children }) => <Table>{children}</Table>,
+          table: ({ children }) => <MarkdownTable>{children}</MarkdownTable>,
           thead: ({ children }) => <TableHeader>{children}</TableHeader>,
           tbody: ({ children }) => <TableBody>{children}</TableBody>,
           tr: ({ children }) => <TableRow>{children}</TableRow>,
-          th: ({ children }) => <TableHead>{children}</TableHead>,
-          td: ({ children }) => <TableCell>{children}</TableCell>,
+          th: ({ children }) => (
+            <TableHead className="h-auto bg-muted/30 px-3 py-2 align-top text-foreground">
+              {children}
+            </TableHead>
+          ),
+          td: ({ children }) => (
+            <TableCell className="px-3 py-2 align-top whitespace-normal text-muted-foreground">
+              {children}
+            </TableCell>
+          ),
         }}
       >
         {body}
