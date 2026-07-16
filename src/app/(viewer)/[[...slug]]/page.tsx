@@ -1,3 +1,4 @@
+import { dirname } from "node:path";
 import { EntryView } from "@/components/EntryView";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
@@ -22,6 +23,16 @@ export default async function ViewerPage({
   try {
     const root = getBundleRoot();
     const entry = readEntry(rel, root);
+    const logDir =
+      entry.kind === "directory"
+        ? entry.path
+        : entry.kind === "missing" || entry.kind === "log"
+          ? null
+          : dirname(entry.path).replace(/^\.$/, "");
+    const logEntry =
+      logDir === null
+        ? undefined
+        : readEntry(logDir ? `${logDir}/log.md` : "log.md", root);
     const graph = buildBundleGraph(root);
     const conceptId =
       entry.kind === "concept"
@@ -31,7 +42,13 @@ export default async function ViewerPage({
           : null;
     const backlinks = conceptId ? getBacklinksFor(conceptId, graph) : [];
 
-    return <EntryView entry={entry} backlinks={backlinks} />;
+    return (
+      <EntryView
+        entry={entry}
+        backlinks={backlinks}
+        logEntry={logEntry?.kind === "log" ? logEntry : undefined}
+      />
+    );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return (

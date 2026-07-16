@@ -6,6 +6,10 @@ import { usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
 import { BundleGraphProvider } from "@/components/bundle-graph-context";
 import {
+  EntryLogProvider,
+  HeaderLogButton,
+} from "@/components/entry-log-context";
+import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
@@ -96,25 +100,28 @@ export function ViewerShell({
   return (
     <TooltipProvider>
       <BundleGraphProvider graph={graph}>
-        <SidebarProvider>
-          <AppSidebar
-            nodes={nodes}
-            bundleLabel={bundleLabel}
-            error={error}
-            graph={graph}
-          />
-          <SidebarInset>
-            <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4 md:px-8">
-              <div className="flex shrink-0 items-center">
-                <SidebarTrigger />
+        <EntryLogProvider>
+          <SidebarProvider>
+            <AppSidebar
+              nodes={nodes}
+              bundleLabel={bundleLabel}
+              error={error}
+              graph={graph}
+            />
+            <SidebarInset>
+              <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4 md:px-8">
+                <div className="flex shrink-0 items-center">
+                  <SidebarTrigger />
+                </div>
+                <HeaderBreadcrumb />
+                <HeaderLogButton />
+              </header>
+              <div className="flex flex-1 flex-col px-4 py-6 md:px-8 md:py-8">
+                {children}
               </div>
-              <HeaderBreadcrumb />
-            </header>
-            <div className="flex flex-1 flex-col px-4 py-6 md:px-8 md:py-8">
-              {children}
-            </div>
-          </SidebarInset>
-        </SidebarProvider>
+            </SidebarInset>
+          </SidebarProvider>
+        </EntryLogProvider>
       </BundleGraphProvider>
     </TooltipProvider>
   );

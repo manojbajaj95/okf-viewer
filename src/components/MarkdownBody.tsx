@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 import { createBundleLinkComponent } from "./BundleLink";
 
 const prose = [
@@ -33,14 +34,16 @@ const prose = [
 export function MarkdownBody({
   body,
   fromRelPath,
+  className,
 }: {
   body: string;
   fromRelPath: string;
+  className?: string;
 }) {
   const BundleLink = createBundleLinkComponent(fromRelPath);
 
   return (
-    <div className={prose}>
+    <div className={cn(prose, className)}>
       <Markdown
         remarkPlugins={[remarkGfm]}
         components={{

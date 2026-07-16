@@ -14,9 +14,9 @@ describe("resolveBundlePath", () => {
       fixtureRoot,
       "data/warehouse/tables/orders.md",
     );
-    expect(abs.endsWith(`${join("data", "warehouse", "tables", "orders.md")}`)).toBe(
-      true,
-    );
+    expect(
+      abs.endsWith(`${join("data", "warehouse", "tables", "orders.md")}`),
+    ).toBe(true);
   });
 
   it("rejects path escape", () => {

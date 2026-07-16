@@ -32,12 +32,9 @@ describe("buildBundleGraph", () => {
 
   it("indexes backlinks", () => {
     const graph = buildBundleGraph(fixtureRoot);
-    const backlinks = getBacklinksFor(
-      "data/warehouse/tables/customers",
-      graph,
+    const backlinks = getBacklinksFor("data/warehouse/tables/customers", graph);
+    expect(backlinks.some((b) => b.id === "data/warehouse/tables/orders")).toBe(
+      true,
     );
-    expect(
-      backlinks.some((b) => b.id === "data/warehouse/tables/orders"),
-    ).toBe(true);
   });
 });

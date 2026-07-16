@@ -1,11 +1,96 @@
+"use client";
+
+import { FileTextIcon, FolderIcon } from "lucide-react";
 import Link from "next/link";
+import * as React from "react";
+import { isLogEntry, useEntryLog } from "@/components/entry-log-context";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import type { ConceptSummary } from "@/lib/bundle/graph";
 import type { BundleEntry } from "@/lib/bundle/types";
 import { bundlePathToHref } from "@/lib/bundle/url";
+import { cn } from "@/lib/utils";
 import { MarkdownBody } from "./MarkdownBody";
+
+function directoryLabel(path: string): string {
+  if (!path) {
+    return "Bundle root";
+  }
+  const segment = path.split("/").pop() ?? path;
+  return segment
+    .split(/[-_]/)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function childLabel(child: {
+  name: string;
+  kind: string;
+  title?: string;
+}): string {
+  if (child.title) {
+    return child.title;
+  }
+  if (child.kind === "dir") {
+    return directoryLabel(child.name);
+  }
+  return child.name.replace(/\.md$/i, "");
+}
+
+function DirectoryChildren({
+  items,
+}: {
+  items: Extract<BundleEntry, { kind: "directory" }>["children"];
+}) {
+  const visible = items
+    .filter((child) => child.kind !== "index" && child.kind !== "log")
+    .sort((a, b) => {
+      if (a.kind === "dir" && b.kind !== "dir") {
+        return -1;
+      }
+      if (a.kind !== "dir" && b.kind === "dir") {
+        return 1;
+      }
+      return childLabel(a).localeCompare(childLabel(b));
+    });
+
+  if (visible.length === 0) {
+    return (
+      <p className="text-sm text-muted-foreground">This folder is empty.</p>
+    );
+  }
+
+  return (
+    <ul className="divide-y divide-border rounded-lg border border-border">
+      {visible.map((child) => {
+        const Icon = child.kind === "dir" ? FolderIcon : FileTextIcon;
+        const label = childLabel(child);
+
+        return (
+          <li key={child.path}>
+            <Link
+              href={bundlePathToHref(child.path)}
+              className="flex items-start gap-3 px-4 py-3 transition-colors duration-150 hover:bg-accent/60 focus-visible:bg-accent/60 focus-visible:outline-none motion-reduce:transition-none"
+            >
+              <Icon className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+              <span className="min-w-0 flex-1">
+                <span className="block font-medium text-foreground">
+                  {label}
+                </span>
+                {child.description ? (
+                  <span className="mt-0.5 block text-sm text-muted-foreground text-pretty">
+                    {child.description}
+                  </span>
+                ) : null}
+              </span>
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
 
 function ConceptHeader({
   frontmatter,
@@ -112,10 +197,24 @@ function EntryChrome({ kind, title }: { kind: string; title: string }) {
 export function EntryView({
   entry,
   backlinks = [],
+  logEntry,
 }: {
   entry: BundleEntry;
   backlinks?: ConceptSummary[];
+  logEntry?: BundleEntry;
 }) {
+  const { registerLog } = useEntryLog();
+  const logToRegister = isLogEntry(entry)
+    ? entry
+    : isLogEntry(logEntry)
+      ? logEntry
+      : null;
+
+  React.useEffect(() => {
+    registerLog(logToRegister, entry.kind === "log");
+    return () => registerLog(null);
+  }, [logToRegister, entry.kind, registerLog]);
+
   if (entry.kind === "missing") {
     return (
       <article className="w-full max-w-3xl space-y-6">
@@ -147,55 +246,52 @@ export function EntryView({
 
   if (entry.kind === "directory") {
     const fromPath = entry.path ? `${entry.path}/index.md` : "index.md";
+    const title = directoryLabel(entry.path);
+
     return (
-      <article className="w-full max-w-3xl space-y-6">
-        <header className="space-y-2">
-          <Badge variant="outline">directory</Badge>
-          <h1 className="text-2xl font-semibold tracking-tight">
-            {entry.path || "Bundle root"}
-          </h1>
-        </header>
+      <article className="w-full max-w-3xl">
         {entry.indexBody ? (
-          <MarkdownBody body={entry.indexBody} fromRelPath={fromPath} />
+          <MarkdownBody
+            body={entry.indexBody}
+            fromRelPath={fromPath}
+            className={cn(
+              "[&_h1:first-of-type]:mt-0 [&_h1:first-of-type]:text-3xl",
+              "[&_ul]:my-4 [&_ul]:list-none [&_ul]:space-y-2 [&_ul]:pl-0",
+              "[&_li]:my-0 [&_li]:rounded-lg [&_li]:border [&_li]:border-border [&_li]:px-4 [&_li]:py-3 [&_li]:transition-colors [&_li]:duration-150 hover:[&_li]:bg-accent/40 motion-reduce:[&_li]:transition-none",
+              "[&_li_p]:my-0",
+            )}
+          />
         ) : (
-          <section className="space-y-3" aria-label="Directory contents">
-            <div className="space-y-1">
-              <h2 className="text-sm font-medium text-foreground">Contents</h2>
+          <div className="space-y-6">
+            <header className="space-y-3">
+              <Badge variant="outline">directory</Badge>
+              <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+                {title}
+              </h1>
+            </header>
+            <section className="space-y-3" aria-label="Directory contents">
               <p className="text-sm text-muted-foreground">
-                No index.md — listing Concepts in this directory
+                No index.md in this folder.
               </p>
-            </div>
-            <ul className="divide-y divide-border rounded-lg border border-border">
-              {entry.children.map((child) => (
-                <li key={child.path}>
-                  <Link
-                    href={bundlePathToHref(child.path)}
-                    className="flex flex-col gap-0.5 px-4 py-3 transition-colors duration-150 hover:bg-accent/60 focus-visible:bg-accent/60 focus-visible:outline-none motion-reduce:transition-none"
-                  >
-                    <span className="font-medium text-foreground">
-                      {child.title ?? child.name}
-                    </span>
-                    {child.description ? (
-                      <span className="text-sm text-muted-foreground text-pretty">
-                        {child.description}
-                      </span>
-                    ) : null}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </section>
+              <DirectoryChildren items={entry.children} />
+            </section>
+          </div>
         )}
       </article>
     );
   }
 
-  const title =
-    entry.kind === "log"
-      ? "Log"
-      : entry.kind === "index"
-        ? "Index"
-        : (entry.title ?? entry.path);
+  if (entry.kind === "log") {
+    return (
+      <article className="w-full max-w-3xl">
+        <p className="text-sm text-muted-foreground">
+          Use the log button in the header to open this change log.
+        </p>
+      </article>
+    );
+  }
+
+  const title = entry.kind === "index" ? "Index" : (entry.title ?? entry.path);
 
   return (
     <article className="w-full max-w-3xl">

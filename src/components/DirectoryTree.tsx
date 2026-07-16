@@ -88,7 +88,9 @@ function TreeNodes({
                 <SidebarMenuSubItem key={node.path || node.name}>
                   <SidebarMenuSubButton
                     isActive={active}
-                    className={cn(!active && "[&>svg]:text-sidebar-foreground/55")}
+                    className={cn(
+                      !active && "[&>svg]:text-sidebar-foreground/55",
+                    )}
                     render={<Link href={href} />}
                   >
                     <FolderGlyph />

@@ -15,8 +15,8 @@ describe("listTree", () => {
     const names = tree.map((n) => n.name);
     expect(names).toContain("operations");
     expect(names).toContain("data");
-    expect(names).toContain("index.md");
-    expect(names).toContain("log.md");
+    expect(names).not.toContain("index.md");
+    expect(names).not.toContain("log.md");
     expect(names).toContain("notes.md");
 
     const orders = tree
@@ -28,9 +28,6 @@ describe("listTree", () => {
 
     const notes = tree.find((n) => n.name === "notes.md");
     expect(notes?.kind).toBe("markdown");
-
-    const log = tree.find((n) => n.name === "log.md");
-    expect(log?.kind).toBe("log");
   });
 });
 

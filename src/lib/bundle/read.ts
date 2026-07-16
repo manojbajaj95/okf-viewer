@@ -72,6 +72,12 @@ export function listTree(root = getBundleRoot()): TreeNode[] {
       if (!entry.isFile() || !entry.name.endsWith(".md")) {
         continue;
       }
+      if (entry.name === "index.md") {
+        continue;
+      }
+      if (entry.name === "log.md") {
+        continue;
+      }
       nodes.push({
         name: entry.name,
         path: rel,
