@@ -4,6 +4,7 @@ import {
   ChevronRightIcon,
   FileTextIcon,
   FolderIcon,
+  FolderOpenIcon,
   ScrollTextIcon,
 } from "lucide-react";
 import Link from "next/link";
@@ -40,15 +41,24 @@ function pathContainsActive(node: TreeNode, pathname: string): boolean {
   return node.children?.some((c) => pathContainsActive(c, pathname)) ?? false;
 }
 
-function FileIcon({ kind }: { kind: TreeNode["kind"] }) {
+function FileIcon({
+  kind,
+  className,
+}: {
+  kind: TreeNode["kind"];
+  className?: string;
+}) {
   if (kind === "log") {
-    return <ScrollTextIcon />;
+    return <ScrollTextIcon className={className} />;
   }
-  return <FileTextIcon />;
+  return <FileTextIcon className={className} />;
 }
 
 const chevronClass =
-  "inline-flex size-7 shrink-0 items-center justify-center rounded-md text-sidebar-foreground/70 transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground motion-reduce:transition-none";
+  "inline-flex size-7 shrink-0 items-center justify-center rounded-md text-sidebar-foreground/55 transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground motion-reduce:transition-none";
+
+const iconMuted = "text-sidebar-foreground/55";
+const iconActive = "text-sidebar-accent-foreground";
 
 function TreeNodes({
   nodes,
@@ -69,6 +79,8 @@ function TreeNodes({
           const open = pathContainsActive(node, pathname);
           const label = node.name;
           const hasChildren = (node.children?.length ?? 0) > 0;
+          const FolderGlyph = open ? FolderOpenIcon : FolderIcon;
+          const folderIconClass = cn(active || open ? iconActive : iconMuted);
 
           if (!hasChildren) {
             if (nested) {
@@ -76,9 +88,10 @@ function TreeNodes({
                 <SidebarMenuSubItem key={node.path || node.name}>
                   <SidebarMenuSubButton
                     isActive={active}
+                    className={cn(!active && "[&>svg]:text-sidebar-foreground/55")}
                     render={<Link href={href} />}
                   >
-                    <FolderIcon />
+                    <FolderGlyph />
                     <span className="truncate">{label}</span>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
@@ -92,7 +105,7 @@ function TreeNodes({
                   tooltip={label}
                   render={<Link href={href} />}
                 >
-                  <FolderIcon />
+                  <FolderGlyph className={folderIconClass} />
                   <span className="truncate">{label}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -110,10 +123,13 @@ function TreeNodes({
                   <div className="flex w-full items-center gap-0.5">
                     <SidebarMenuSubButton
                       isActive={active}
-                      className="flex-1"
+                      className={cn(
+                        "flex-1",
+                        !active && "[&>svg]:text-sidebar-foreground/55",
+                      )}
                       render={<Link href={href} />}
                     >
-                      <FolderIcon />
+                      <FolderGlyph />
                       <span className="truncate">{label}</span>
                     </SidebarMenuSubButton>
                     <CollapsibleTrigger className={chevronClass}>
@@ -145,7 +161,7 @@ function TreeNodes({
                       className="flex-1"
                       render={<Link href={href} />}
                     >
-                      <FolderIcon />
+                      <FolderGlyph className={folderIconClass} />
                       <span className="truncate">{label}</span>
                     </SidebarMenuButton>
                     <CollapsibleTrigger className={chevronClass}>
@@ -174,12 +190,22 @@ function TreeNodes({
         }
 
         const label = node.name.replace(/\.md$/i, "");
+        const fileIconClass = cn(
+          active ? iconActive : iconMuted,
+          node.kind === "log" && !active && "text-sidebar-foreground/45",
+        );
 
         if (nested) {
           return (
             <SidebarMenuSubItem key={node.path || node.name}>
               <SidebarMenuSubButton
                 isActive={active}
+                className={cn(
+                  !active &&
+                    (node.kind === "log"
+                      ? "[&>svg]:text-sidebar-foreground/45"
+                      : "[&>svg]:text-sidebar-foreground/55"),
+                )}
                 render={<Link href={href} />}
               >
                 <FileIcon kind={node.kind} />
@@ -196,7 +222,7 @@ function TreeNodes({
               tooltip={label}
               render={<Link href={href} />}
             >
-              <FileIcon kind={node.kind} />
+              <FileIcon kind={node.kind} className={fileIconClass} />
               <span className="truncate">{label}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -209,9 +235,22 @@ function TreeNodes({
 export function DirectoryTree({ nodes }: { nodes: TreeNode[] }) {
   const pathname = usePathname();
 
+  if (nodes.length === 0) {
+    return (
+      <SidebarGroup className="py-2">
+        <SidebarGroupLabel>Contents</SidebarGroupLabel>
+        <SidebarGroupContent>
+          <p className="px-2 py-6 text-center text-xs text-sidebar-foreground/55">
+            No entries in this Bundle.
+          </p>
+        </SidebarGroupContent>
+      </SidebarGroup>
+    );
+  }
+
   return (
-    <SidebarGroup className="pt-1">
-      <SidebarGroupLabel className="sr-only">Directory Tree</SidebarGroupLabel>
+    <SidebarGroup className="py-2">
+      <SidebarGroupLabel>Contents</SidebarGroupLabel>
       <SidebarGroupContent>
         <SidebarMenu>
           <TreeNodes nodes={nodes} pathname={pathname} />
