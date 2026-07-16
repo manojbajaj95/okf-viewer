@@ -1,6 +1,13 @@
 import { EntryView } from "@/components/EntryView";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { getBundleRoot, readEntry, slugToRelPath } from "@/lib/bundle";
+import {
+  buildBundleGraph,
+  getBacklinksFor,
+  getBundleRoot,
+  normalizeConceptId,
+  readEntry,
+  slugToRelPath,
+} from "@/lib/bundle";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +22,16 @@ export default async function ViewerPage({
   try {
     const root = getBundleRoot();
     const entry = readEntry(rel, root);
-    return <EntryView entry={entry} />;
+    const graph = buildBundleGraph(root);
+    const conceptId =
+      entry.kind === "concept"
+        ? normalizeConceptId(entry.path)
+        : entry.kind === "missing"
+          ? normalizeConceptId(entry.path)
+          : null;
+    const backlinks = conceptId ? getBacklinksFor(conceptId, graph) : [];
+
+    return <EntryView entry={entry} backlinks={backlinks} />;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return (

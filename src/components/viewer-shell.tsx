@@ -4,12 +4,14 @@ import { ChevronRightIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AppSidebar } from "@/components/app-sidebar";
+import { BundleGraphProvider } from "@/components/bundle-graph-context";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import type { BundleGraph } from "@/lib/bundle/graph";
 import type { TreeNode } from "@/lib/bundle/types";
 import { cn } from "@/lib/utils";
 
@@ -82,29 +84,33 @@ export function ViewerShell({
   nodes,
   bundleLabel,
   error,
+  graph,
   children,
 }: {
   nodes: TreeNode[];
   bundleLabel: string;
   error: string | null;
+  graph: BundleGraph;
   children: React.ReactNode;
 }) {
   return (
     <TooltipProvider>
-      <SidebarProvider>
-        <AppSidebar nodes={nodes} bundleLabel={bundleLabel} error={error} />
-        <SidebarInset>
-          <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4 md:px-8">
-            <div className="flex shrink-0 items-center">
-              <SidebarTrigger />
+      <BundleGraphProvider graph={graph}>
+        <SidebarProvider>
+          <AppSidebar nodes={nodes} bundleLabel={bundleLabel} error={error} />
+          <SidebarInset>
+            <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 border-b border-border bg-background px-4 md:px-8">
+              <div className="flex shrink-0 items-center">
+                <SidebarTrigger />
+              </div>
+              <HeaderBreadcrumb />
+            </header>
+            <div className="flex flex-1 flex-col px-4 py-6 md:px-8 md:py-8">
+              {children}
             </div>
-            <HeaderBreadcrumb />
-          </header>
-          <div className="flex flex-1 flex-col px-4 py-6 md:px-8 md:py-8">
-            {children}
-          </div>
-        </SidebarInset>
-      </SidebarProvider>
+          </SidebarInset>
+        </SidebarProvider>
+      </BundleGraphProvider>
     </TooltipProvider>
   );
 }

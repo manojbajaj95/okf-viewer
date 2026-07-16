@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import type { ConceptSummary } from "@/lib/bundle/graph";
 import type { BundleEntry } from "@/lib/bundle/types";
 import { bundlePathToHref } from "@/lib/bundle/url";
 import { MarkdownBody } from "./MarkdownBody";
@@ -68,6 +69,36 @@ function ConceptHeader({
   );
 }
 
+function BacklinksSection({ backlinks }: { backlinks: ConceptSummary[] }) {
+  if (backlinks.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="mb-8 space-y-3" aria-label="Linked from">
+      <h2 className="text-sm font-medium text-foreground">Linked from</h2>
+      <ul className="divide-y divide-border rounded-lg border border-border">
+        {backlinks.map((item) => (
+          <li key={item.id}>
+            <Link
+              href={bundlePathToHref(item.path)}
+              className="flex flex-col gap-0.5 px-4 py-3 transition-colors duration-150 hover:bg-accent/60 focus-visible:bg-accent/60 focus-visible:outline-none motion-reduce:transition-none"
+            >
+              <span className="font-medium text-foreground">{item.title}</span>
+              {item.description ? (
+                <span className="text-sm text-muted-foreground text-pretty">
+                  {item.description}
+                </span>
+              ) : null}
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <Separator />
+    </section>
+  );
+}
+
 function EntryChrome({ kind, title }: { kind: string; title: string }) {
   return (
     <header className="mb-8 space-y-3">
@@ -78,20 +109,29 @@ function EntryChrome({ kind, title }: { kind: string; title: string }) {
   );
 }
 
-export function EntryView({ entry }: { entry: BundleEntry }) {
+export function EntryView({
+  entry,
+  backlinks = [],
+}: {
+  entry: BundleEntry;
+  backlinks?: ConceptSummary[];
+}) {
   if (entry.kind === "missing") {
     return (
-      <Alert>
-        <AlertTitle>Missing Concept</AlertTitle>
-        <AlertDescription>
-          No file found for{" "}
-          <code className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-sm text-foreground">
-            {entry.path || "/"}
-          </code>
-          . Bundle Links to missing targets soft-fail by design — check the path
-          or open another Concept from the Directory Tree.
-        </AlertDescription>
-      </Alert>
+      <article className="w-full max-w-3xl space-y-6">
+        <Alert>
+          <AlertTitle>Missing Concept</AlertTitle>
+          <AlertDescription>
+            No file found for{" "}
+            <code className="rounded-md bg-muted px-1.5 py-0.5 font-mono text-sm text-foreground">
+              {entry.path || "/"}
+            </code>
+            . Bundle Links to missing targets soft-fail by design — check the
+            path or open another Concept from the Directory Tree.
+          </AlertDescription>
+        </Alert>
+        <BacklinksSection backlinks={backlinks} />
+      </article>
     );
   }
 
@@ -99,6 +139,7 @@ export function EntryView({ entry }: { entry: BundleEntry }) {
     return (
       <article className="w-full max-w-3xl">
         <ConceptHeader frontmatter={entry.frontmatter} />
+        <BacklinksSection backlinks={backlinks} />
         <MarkdownBody body={entry.body} fromRelPath={entry.path} />
       </article>
     );

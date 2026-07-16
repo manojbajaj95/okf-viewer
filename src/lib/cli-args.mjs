@@ -3,7 +3,7 @@
  * @param {string[]} argv
  */
 export function parseArgv(argv) {
-  /** @type {{ command?: string, path?: string, port?: number, help?: boolean, openBrowser?: boolean, error?: string }} */
+  /** @type {{ command?: string, path?: string, port?: number, bind?: string, json?: boolean, help?: boolean, openBrowser?: boolean, error?: string }} */
   const result = { openBrowser: true };
   const args = [...argv];
 
@@ -24,6 +24,19 @@ export function parseArgv(argv) {
         return result;
       }
       result.port = port;
+      continue;
+    }
+    if (token === "--bind") {
+      const value = args.shift();
+      if (!value) {
+        result.error = "missing value for --bind";
+        return result;
+      }
+      result.bind = value;
+      continue;
+    }
+    if (token === "--json") {
+      result.json = true;
       continue;
     }
     if (token === "--no-open") {

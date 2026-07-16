@@ -31,4 +31,20 @@ describe("parseArgv", () => {
   it("honors --no-open", () => {
     expect(parseArgv(["open", "--no-open"]).openBrowser).toBe(false);
   });
+
+  it("parses validate command", () => {
+    expect(parseArgv(["validate", "./bundle"])).toEqual({
+      command: "validate",
+      path: "./bundle",
+      openBrowser: true,
+    });
+  });
+
+  it("parses validate --json", () => {
+    expect(parseArgv(["validate", ".", "--json"]).json).toBe(true);
+  });
+
+  it("parses open --bind", () => {
+    expect(parseArgv(["open", "--bind", "0.0.0.0"]).bind).toBe("0.0.0.0");
+  });
 });

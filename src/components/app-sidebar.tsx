@@ -1,7 +1,8 @@
 "use client";
 
-import { BookOpenIcon } from "lucide-react";
+import { BookOpenIcon, NetworkIcon, TagIcon, TypeIcon } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { DirectoryTree } from "@/components/DirectoryTree";
 import { ModeToggle } from "@/components/mode-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -9,6 +10,9 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -23,6 +27,12 @@ function shortBundleLabel(path: string): string {
   return parts.at(-1) ?? path;
 }
 
+const browseLinks = [
+  { href: "/graph", label: "Graph", icon: NetworkIcon },
+  { href: "/tags", label: "Tags", icon: TagIcon },
+  { href: "/types", label: "Types", icon: TypeIcon },
+] as const;
+
 export function AppSidebar({
   nodes,
   bundleLabel,
@@ -32,6 +42,7 @@ export function AppSidebar({
   bundleLabel: string;
   error: string | null;
 }) {
+  const pathname = usePathname();
   const displayLabel = error
     ? "Bundle unavailable"
     : shortBundleLabel(bundleLabel);
@@ -74,7 +85,28 @@ export function AppSidebar({
             </Alert>
           </div>
         ) : (
-          <DirectoryTree nodes={nodes} />
+          <>
+            <SidebarGroup className="py-2">
+              <SidebarGroupLabel>Browse</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {browseLinks.map(({ href, label, icon: Icon }) => (
+                    <SidebarMenuItem key={href}>
+                      <SidebarMenuButton
+                        isActive={pathname === href}
+                        tooltip={label}
+                        render={<Link href={href} />}
+                      >
+                        <Icon />
+                        <span>{label}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+            <DirectoryTree nodes={nodes} />
+          </>
         )}
       </SidebarContent>
       <SidebarFooter className="gap-0 border-t border-sidebar-border p-2">

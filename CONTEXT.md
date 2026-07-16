@@ -17,7 +17,7 @@ A single unit of knowledge in a Bundle, represented as one markdown file with YA
 _Avoid_: Page, document, node, entry (as the primary term)
 
 **Browse**:
-The Viewer's primary job: navigate from indexes into Concepts and read their content. Not search, validation, or graph exploration as the primary surface.
+The Viewer's primary job: navigate from indexes into Concepts and read their content. Graph, Tags, and Types are secondary browse surfaces. Not search or validation as the primary surface.
 _Avoid_: Explore, search, visualize (as descriptions of the primary job)
 
 **Open**:

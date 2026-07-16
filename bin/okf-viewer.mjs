@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 import { spawn } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, statSync } from "node:fs";
 import { createServer } from "node:net";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { validateBundle } from "../src/lib/bundle/validate-bundle.mjs";
 import { parseArgv } from "../src/lib/cli-args.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -13,17 +14,24 @@ function usage(exitCode = 0) {
   console.log(`Usage: okf-viewer <command> [options]
 
 Commands:
-  open [path]   Open a local OKF Knowledge Bundle (default: .)
+  open [path]       Open a local OKF Knowledge Bundle (default: .)
+  validate <dir>    Check OKF v0.1 conformance (§9)
 
-Options:
-  --port <n>    Prefer this port (default: first free port from 3847)
-  --no-open     Do not open the system browser
-  --help, -h    Show help
+Options (open):
+  --port <n>        Prefer this port (default: first free port from 3847)
+  --bind <addr>     Bind address (default: 127.0.0.1)
+  --no-open         Do not open the system browser
+
+Options (validate):
+  --json            Emit JSON report
+
+Global:
+  --help, -h        Show help
 `);
   process.exit(exitCode);
 }
 
-function findFreePort(preferred) {
+function findFreePort(preferred, host) {
   return new Promise((resolvePort, reject) => {
     const tryListen = (port) => {
       const server = createServer();
@@ -35,7 +43,7 @@ function findFreePort(preferred) {
         }
         reject(err);
       });
-      server.listen(port, "127.0.0.1", () => {
+      server.listen(port, host, () => {
         const { port: bound } = /** @type {import('node:net').AddressInfo} */ (
           server.address()
         );
@@ -94,9 +102,10 @@ function standaloneServer() {
 /**
  * @param {string | undefined} pathArg
  * @param {number | undefined} portArg
+ * @param {string} bindHost
  * @param {boolean} shouldOpenBrowser
  */
-async function openBundle(pathArg, portArg, shouldOpenBrowser) {
+async function openBundle(pathArg, portArg, bindHost, shouldOpenBrowser) {
   const bundlePath = resolve(process.cwd(), pathArg ?? ".");
   if (!existsSync(bundlePath)) {
     console.error(`okf-viewer: path does not exist: ${bundlePath}`);
@@ -104,13 +113,14 @@ async function openBundle(pathArg, portArg, shouldOpenBrowser) {
   }
 
   const preferred = portArg ?? 3847;
-  const port = await findFreePort(preferred);
-  const url = `http://127.0.0.1:${port}`;
+  const port = await findFreePort(preferred, bindHost);
+  const displayHost = bindHost === "0.0.0.0" ? "127.0.0.1" : bindHost;
+  const url = `http://${displayHost}:${port}`;
   const env = {
     ...process.env,
     OKF_BUNDLE_PATH: bundlePath,
     PORT: String(port),
-    HOSTNAME: "127.0.0.1",
+    HOSTNAME: bindHost,
   };
 
   console.log(`Opening Knowledge Bundle: ${bundlePath}`);
@@ -133,13 +143,17 @@ async function openBundle(pathArg, portArg, shouldOpenBrowser) {
     console.log(`Viewer: ${url} (${nextMode})`);
     child = spawn(
       process.execPath,
-      [nextBin(), nextMode, "--hostname", "127.0.0.1", "--port", String(port)],
+      [nextBin(), nextMode, "--hostname", bindHost, "--port", String(port)],
       {
         cwd: packageRoot,
         env,
         stdio: "inherit",
       },
     );
+  }
+
+  if (bindHost === "0.0.0.0") {
+    console.log(`Listening on all interfaces — use http://<this-host>:${port}`);
   }
 
   if (shouldOpenBrowser) {
@@ -155,6 +169,35 @@ async function openBundle(pathArg, portArg, shouldOpenBrowser) {
   });
 }
 
+/**
+ * @param {string | undefined} pathArg
+ * @param {boolean} json
+ */
+function runValidate(pathArg, json) {
+  const bundlePath = resolve(process.cwd(), pathArg ?? ".");
+  if (!existsSync(bundlePath) || !statSync(bundlePath).isDirectory()) {
+    console.error(`okf-viewer: not a directory: ${bundlePath}`);
+    process.exit(2);
+  }
+
+  const result = validateBundle(bundlePath);
+
+  if (json) {
+    console.log(JSON.stringify(result, null, 2));
+  } else {
+    console.log(`OKF v0.1 conformance — ${bundlePath}`);
+    console.log(`  concepts: ${result.conceptCount}`);
+    for (const err of result.errors) {
+      console.log(`  ✗ ${err.rule}  ${err.path}: ${err.message}`);
+    }
+    if (result.conformant) {
+      console.log("  ✓ conformant");
+    }
+  }
+
+  process.exit(result.conformant ? 0 : 1);
+}
+
 const parsed = parseArgv(process.argv.slice(2));
 
 if (parsed.help) {
@@ -162,11 +205,18 @@ if (parsed.help) {
 }
 if (parsed.error) {
   console.error(`okf-viewer: ${parsed.error}`);
-  usage(1);
+  usage(2);
 }
 if (parsed.command === "open") {
-  await openBundle(parsed.path, parsed.port, parsed.openBrowser !== false);
+  await openBundle(
+    parsed.path,
+    parsed.port,
+    parsed.bind ?? "127.0.0.1",
+    parsed.openBrowser !== false,
+  );
+} else if (parsed.command === "validate") {
+  runValidate(parsed.path, parsed.json === true);
 } else {
   console.error(`okf-viewer: unknown command ${parsed.command ?? "(none)"}`);
-  usage(1);
+  usage(2);
 }

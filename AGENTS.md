@@ -21,6 +21,7 @@ bun run typecheck
 bun run test
 bun run build          # next build + scripts/postbuild.mjs (standalone static copy)
 bun run okf-viewer -- open ./fixtures/sample-bundle --no-open
+bun run okf-viewer -- validate ./fixtures/sample-bundle
 OKF_BUNDLE_PATH=./fixtures/sample-bundle bun run dev
 ```
 
@@ -40,5 +41,7 @@ OKF_BUNDLE_PATH=./fixtures/sample-bundle bun run dev
 
 - Conventional Commits (`feat:`, `fix:`, `chore:`, …) — required for Release Please.
 - Lint/format: Biome (`bun run lint` / `bun run format`).
-- Prefer YAGNI: browse-only v0.1; no graph/search/validator/edit.
+- Prefer YAGNI: browse-first; graph is a secondary nav surface; `validate` is CLI-only (open stays best-effort). No search or edit.
+- `src/lib/bundle/links.ts`, `graph.ts` — link extraction and graph index (server); `validate-bundle.mjs` — CLI validate
+- `src/app/(viewer)/graph|tags|types/` — browse surfaces
 - Never import `src/lib/bundle/read.ts` or `paths.ts` (fs) from client components — use `src/lib/bundle/url.ts` instead.

@@ -22,6 +22,15 @@ OKF Viewer is a read-only local viewer for [Open Knowledge Format](https://githu
 
 ```bash
 npx okf-viewer@latest open /path/to/bundle
+npx okf-viewer@latest validate /path/to/bundle
+```
+
+## CLI
+
+```bash
+okf-viewer open [path]       # browse bundle in browser (default: .)
+okf-viewer validate <dir>    # OKF v0.1 §9 conformance check
+okf-viewer open --bind 0.0.0.0 --port 3847   # listen on all interfaces
 ```
 
 ## Features
@@ -30,7 +39,10 @@ npx okf-viewer@latest open /path/to/bundle
 - **Directory Tree.** Sidebar of folders and Concept files for orientation and direct jumps.
 - **Index-first browse.** When a directory has `index.md`, opening it prefers that Index over a file listing.
 - **Concept View.** Title, type, tags, and description from the Concept, plus rendered markdown.
-- **Bundle Links.** In-bundle links stay in the Viewer; external URLs open outside; missing targets are obvious.
+- **Bundle Links.** In-bundle links stay in the Viewer; external URLs open outside; missing targets link to a clear missing-Concept state.
+- **Backlinks.** Concept View shows other Concepts that link to the current one.
+- **Graph, Tags, Types.** Secondary browse surfaces for cross-links and frontmatter grouping.
+- **Validate.** `okf-viewer validate <dir>` checks OKF v0.1 §9 conformance (CLI only; open stays best-effort).
 - **Best-effort.** Opens any local folder of markdown. Valid Concepts get Concept View; other `.md` files stay readable.
 - **Light / dark.** Theme toggle when you need it.
 
