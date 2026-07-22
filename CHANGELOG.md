@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.4.0](https://github.com/manojbajaj95/okf-viewer/compare/okf-viewer-v0.3.0...okf-viewer-v0.4.0) (2026-07-22)
+
+
+### Features
+
+* deepen bundle reader and graph browsing ([879b167](https://github.com/manojbajaj95/okf-viewer/commit/879b167adc95be87f7e3e6a88054c53c38308b4b))
+
+
+### Bug Fixes
+
+* Improve design ([f50c085](https://github.com/manojbajaj95/okf-viewer/commit/f50c08550189c5fbf253541c2a4dc804d6a2119a))
+
 ## [0.3.0](https://github.com/manojbajaj95/okf-viewer/compare/okf-viewer-v0.2.0...okf-viewer-v0.3.0) (2026-07-16)
 
 
