@@ -1,6 +1,7 @@
 name: Publish
 
-# Runs after Release Please merges a release PR and creates a GitHub Release.
+# Called directly by Release Please because events created with GITHUB_TOKEN do
+# not trigger other workflows. Also handles manual releases and recovery runs.
 # npm trusted publishing (OIDC) — no NPM_TOKEN secret.
 #
 # One-time setup on npmjs.com:
@@ -15,6 +16,8 @@ name: Publish
 # then attach the trusted publisher for subsequent releases.
 
 on:
+  workflow_call:
+  workflow_dispatch:
   release:
     types: [published]
 

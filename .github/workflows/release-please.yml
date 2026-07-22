@@ -1,7 +1,7 @@
 name: Release Please
 
 # Opens/updates a Release PR (CHANGELOG + version bump).
-# Merge that PR → tag + GitHub Release → Publish workflow (OIDC to npm).
+# Merge that PR → tag + GitHub Release → call Publish (OIDC to npm).
 # Commits/PR titles must follow Conventional Commits:
 # https://www.conventionalcommits.org/
 
@@ -16,8 +16,19 @@ permissions:
 jobs:
   release-please:
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
     steps:
       - uses: googleapis/release-please-action@v4
+        id: release
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
+
+  publish:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true'
+    uses: ./.github/workflows/publish.yml
+    permissions:
+      contents: read
+      id-token: write
