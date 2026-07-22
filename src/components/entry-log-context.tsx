@@ -1,13 +1,8 @@
 "use client";
 
 import { ScrollTextIcon } from "lucide-react";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from "react";
+import { usePathname } from "next/navigation";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -16,26 +11,12 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import type { BundleEntry } from "@/lib/bundle/types";
+import type { BundleLogEntry, BundleLogRoute } from "@/lib/bundle/types";
 import { MarkdownBody } from "./MarkdownBody";
 
-type LogEntry = {
-  kind: "log";
-  path: string;
-  body: string;
-  title?: string;
-};
-
-export function isLogEntry(entry: BundleEntry | undefined): entry is LogEntry {
-  return entry?.kind === "log";
-}
-
 type EntryLogContextValue = {
-  logEntry: LogEntry | null;
-  open: boolean;
-  setOpen: (open: boolean) => void;
+  logEntry: BundleLogEntry | null;
   openLog: () => void;
-  registerLog: (entry: LogEntry | null, autoOpen?: boolean) => void;
 };
 
 const EntryLogContext = createContext<EntryLogContextValue | null>(null);
@@ -49,7 +30,7 @@ function EntryLogSheet({
   open,
   onOpenChange,
 }: {
-  logEntry: LogEntry;
+  logEntry: BundleLogEntry;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -71,62 +52,64 @@ function EntryLogSheet({
   );
 }
 
-export function EntryLogProvider({ children }: { children: React.ReactNode }) {
-  const [logEntry, setLogEntry] = useState<LogEntry | null>(null);
+export function EntryLogProvider({
+  routes,
+  children,
+}: {
+  routes: Record<string, BundleLogRoute>;
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
+  const route = routes[pathname];
   const [open, setOpen] = useState(false);
 
-  const registerLog = useCallback(
-    (entry: LogEntry | null, autoOpen = false) => {
-      setLogEntry(entry);
-      if (autoOpen) {
-        setOpen(true);
-      } else if (!entry) {
-        setOpen(false);
-      }
-    },
-    [],
-  );
-
-  const openLog = useCallback(() => setOpen(true), []);
+  useEffect(() => {
+    if (route?.autoOpen) {
+      setOpen(true);
+    } else if (!route) {
+      setOpen(false);
+    }
+  }, [route]);
 
   const value = useMemo(
-    () => ({ logEntry, open, setOpen, openLog, registerLog }),
-    [logEntry, open, registerLog, openLog],
+    () => ({
+      logEntry: route?.entry ?? null,
+      openLog: () => setOpen(true),
+    }),
+    [route],
   );
 
   return (
     <EntryLogContext.Provider value={value}>
       {children}
-      {logEntry ? (
-        <EntryLogSheet logEntry={logEntry} open={open} onOpenChange={setOpen} />
+      {route ? (
+        <EntryLogSheet
+          logEntry={route.entry}
+          open={open}
+          onOpenChange={setOpen}
+        />
       ) : null}
     </EntryLogContext.Provider>
   );
 }
 
-export function useEntryLog(): EntryLogContextValue {
-  const ctx = useContext(EntryLogContext);
-  if (!ctx) {
-    throw new Error("useEntryLog must be used within EntryLogProvider");
-  }
-  return ctx;
-}
-
 export function HeaderLogButton() {
-  const { logEntry, openLog } = useEntryLog();
-
-  if (!logEntry) {
+  const context = useContext(EntryLogContext);
+  if (!context) {
+    throw new Error("HeaderLogButton must be used within EntryLogProvider");
+  }
+  if (!context.logEntry) {
     return null;
   }
 
-  const scope = logScope(logEntry.path);
+  const scope = logScope(context.logEntry.path);
 
   return (
     <Button
       variant="secondary"
       size="sm"
       className="shrink-0"
-      onClick={openLog}
+      onClick={context.openLog}
       aria-label={`Open ${scope}`}
     >
       <ScrollTextIcon />

@@ -26,7 +26,19 @@ export type BundleEntry =
       body: string;
     }
   | {
-      kind: "index" | "log" | "markdown";
+      kind: "index";
+      path: string;
+      body: string;
+      title?: string;
+    }
+  | {
+      kind: "log";
+      path: string;
+      body: string;
+      title?: string;
+    }
+  | {
+      kind: "markdown";
       path: string;
       body: string;
       title?: string;
@@ -48,3 +60,10 @@ export type BundleEntry =
       kind: "missing";
       path: string;
     };
+
+export type BundleLogEntry = Extract<BundleEntry, { kind: "log" }>;
+
+export type BundleLogRoute = {
+  entry: BundleLogEntry;
+  autoOpen: boolean;
+};

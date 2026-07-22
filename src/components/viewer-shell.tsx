@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { BundleGraph } from "@/lib/bundle/graph";
-import type { TreeNode } from "@/lib/bundle/types";
+import type { BundleLogRoute, TreeNode } from "@/lib/bundle/types";
 import { cn } from "@/lib/utils";
 
 function HeaderBreadcrumb() {
@@ -89,18 +89,20 @@ export function ViewerShell({
   bundleLabel,
   error,
   graph,
+  logRoutes,
   children,
 }: {
   nodes: TreeNode[];
   bundleLabel: string;
   error: string | null;
   graph: BundleGraph;
+  logRoutes: Record<string, BundleLogRoute>;
   children: React.ReactNode;
 }) {
   return (
     <TooltipProvider>
       <BundleGraphProvider graph={graph}>
-        <EntryLogProvider>
+        <EntryLogProvider routes={logRoutes}>
           <SidebarProvider>
             <AppSidebar
               nodes={nodes}

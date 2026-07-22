@@ -29,7 +29,7 @@ OKF_BUNDLE_PATH=./fixtures/sample-bundle bun run dev
 
 - `bin/okf-viewer.mjs` — CLI entry (prefers `.next/standalone/server.js`)
 - `src/lib/cli-args.mjs` — CLI argv parser
-- `src/lib/bundle/` — server-side Bundle reader (paths, tree, readEntry); `url.ts` is isomorphic for link rewriting
+- `src/lib/bundle/` — server-side opened Bundle snapshot and filesystem policy; `url.ts` is isomorphic for link rewriting
 - `src/app/(viewer)/layout.tsx` — Directory Tree shell
 - `src/app/(viewer)/[[...slug]]/page.tsx` — Concept / Index / Log / missing pane
 - `src/components/` — AppSidebar, DirectoryTree, EntryView, MarkdownBody, ModeToggle; shadcn primitives in `src/components/ui/`
@@ -44,4 +44,4 @@ OKF_BUNDLE_PATH=./fixtures/sample-bundle bun run dev
 - Prefer YAGNI: browse-first; graph is a secondary nav surface; `validate` is CLI-only (open stays best-effort). No search or edit.
 - `src/lib/bundle/links.ts`, `graph.ts` — link extraction and graph index (server); `validate-bundle.mjs` — CLI validate
 - `src/app/(viewer)/graph|tags|types/` — browse surfaces
-- Never import `src/lib/bundle/read.ts` or `paths.ts` (fs) from client components — use `src/lib/bundle/url.ts` instead.
+- Never import `src/lib/bundle/opened-bundle.ts`, `filesystem.mjs`, or `paths.ts` from client modules — use `src/lib/bundle/url.ts` instead.

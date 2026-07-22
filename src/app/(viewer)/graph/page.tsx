@@ -1,11 +1,10 @@
 import { KnowledgeGraph } from "@/components/KnowledgeGraph";
-import { buildBundleGraph, getBundleRoot } from "@/lib/bundle";
+import { openBundle } from "@/lib/bundle";
 
 export const dynamic = "force-dynamic";
 
 export default function GraphPage() {
-  const root = getBundleRoot();
-  const graph = buildBundleGraph(root);
+  const graph = openBundle().graph;
 
   return (
     <div className="w-full space-y-4">
@@ -14,8 +13,8 @@ export default function GraphPage() {
           Knowledge Graph
         </h1>
         <p className="text-sm text-muted-foreground">
-          Cross-links between Concepts. Click a node to preview, then open the
-          Concept View.
+          Search and filter cross-links between Concepts. Select a node to
+          preview it, then open the full Concept View.
         </p>
       </header>
       <KnowledgeGraph graph={graph} />

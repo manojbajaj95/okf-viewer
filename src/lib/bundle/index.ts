@@ -5,17 +5,12 @@ export type {
   GraphNode,
 } from "./graph";
 export {
-  buildBundleGraph,
-  conceptPathExists,
-  getBacklinksFor,
-  listConcepts,
-} from "./graph";
-export {
   conceptIdToPath,
   extractMarkdownLinks,
   normalizeConceptId,
   resolveConceptLinks,
 } from "./links";
+export { openBundle } from "./opened-bundle";
 export {
   bundlePathToHref,
   getBundleRoot,
@@ -23,9 +18,10 @@ export {
   slugToRelPath,
   toPosixRelative,
 } from "./paths";
-export { listTree, readEntry } from "./read";
 export type {
   BundleEntry,
+  BundleLogEntry,
+  BundleLogRoute,
   ConceptFrontmatter,
   TreeKind,
   TreeNode,

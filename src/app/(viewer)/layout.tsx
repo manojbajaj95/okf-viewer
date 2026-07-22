@@ -1,6 +1,7 @@
 import { ViewerShell } from "@/components/viewer-shell";
-import { buildBundleGraph, getBundleRoot, listTree } from "@/lib/bundle";
+import { openBundle } from "@/lib/bundle";
 import type { BundleGraph } from "@/lib/bundle/graph";
+import type { BundleLogRoute, TreeNode } from "@/lib/bundle/types";
 
 export const dynamic = "force-dynamic";
 
@@ -11,16 +12,18 @@ export default function ViewerLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let tree: ReturnType<typeof listTree> = [];
+  let tree: TreeNode[] = [];
   let bundleLabel = "(OKF_BUNDLE_PATH not set)";
   let error: string | null = null;
   let graph: BundleGraph = emptyGraph;
+  let logRoutes: Record<string, BundleLogRoute> = {};
 
   try {
-    const root = getBundleRoot();
-    bundleLabel = root;
-    tree = listTree(root);
-    graph = buildBundleGraph(root);
+    const bundle = openBundle();
+    bundleLabel = bundle.root;
+    tree = bundle.tree;
+    graph = bundle.graph;
+    logRoutes = bundle.logRoutes;
   } catch (err) {
     error = err instanceof Error ? err.message : String(err);
   }
@@ -31,6 +34,7 @@ export default function ViewerLayout({
       bundleLabel={bundleLabel}
       error={error}
       graph={graph}
+      logRoutes={logRoutes}
     >
       {children}
     </ViewerShell>

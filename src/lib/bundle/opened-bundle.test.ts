@@ -1,7 +1,7 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { listTree, readEntry } from "./read";
+import { openBundle } from "./opened-bundle";
 import { resolveMarkdownHref } from "./url";
 
 const fixtureRoot = join(
@@ -9,9 +9,9 @@ const fixtureRoot = join(
   "../../../fixtures/sample-bundle",
 );
 
-describe("listTree", () => {
+describe("openBundle", () => {
   it("lists dirs and markdown kinds", () => {
-    const tree = listTree(fixtureRoot);
+    const tree = openBundle(fixtureRoot).tree;
     const names = tree.map((n) => n.name);
     expect(names).toContain("operations");
     expect(names).toContain("data");
@@ -31,9 +31,15 @@ describe("listTree", () => {
   });
 });
 
-describe("readEntry", () => {
+describe("opened Bundle entries", () => {
+  const bundle = openBundle(fixtureRoot);
+
+  it("reuses the opened Bundle", () => {
+    expect(openBundle(fixtureRoot)).toBe(bundle);
+  });
+
   it("reads a concept by path without .md", () => {
-    const entry = readEntry("data/warehouse/tables/orders", fixtureRoot);
+    const entry = bundle.readEntry("data/warehouse/tables/orders");
     expect(entry.kind).toBe("concept");
     if (entry.kind === "concept") {
       expect(entry.frontmatter.type).toBe("BigQuery Table");
@@ -43,7 +49,7 @@ describe("readEntry", () => {
   });
 
   it("prefers index body for directories", () => {
-    const entry = readEntry("data/warehouse/tables", fixtureRoot);
+    const entry = bundle.readEntry("data/warehouse/tables");
     expect(entry.kind).toBe("directory");
     if (entry.kind === "directory") {
       expect(entry.indexBody).toContain("Orders");
@@ -52,13 +58,19 @@ describe("readEntry", () => {
   });
 
   it("returns missing for unknown paths", () => {
-    const entry = readEntry("data/warehouse/tables/nope", fixtureRoot);
+    const entry = bundle.readEntry("data/warehouse/tables/nope");
     expect(entry.kind).toBe("missing");
   });
 
   it("reads log as log", () => {
-    const entry = readEntry("log.md", fixtureRoot);
+    const entry = bundle.readEntry("log.md");
     expect(entry.kind).toBe("log");
+  });
+
+  it("indexes Logs by Viewer route", () => {
+    expect(bundle.logRoutes["/notes"]?.entry.path).toBe("log.md");
+    expect(bundle.logRoutes["/data"]?.entry.path).toBe("data/log.md");
+    expect(bundle.logRoutes["/log"]?.autoOpen).toBe(true);
   });
 });
 

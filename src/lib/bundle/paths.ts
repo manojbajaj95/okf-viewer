@@ -1,8 +1,10 @@
 import { existsSync, lstatSync, realpathSync } from "node:fs";
 import { resolve } from "node:path";
-import { resolveUnderRoot } from "./url";
-
-const SKIP_NAMES = new Set([".git", "node_modules", ".DS_Store", ".next"]);
+import {
+  resolveBundlePath as resolveFilesystemPath,
+  shouldSkipName,
+  toPosixRelative,
+} from "./filesystem.mjs";
 
 export function getBundleRoot(env: NodeJS.ProcessEnv = process.env): string {
   const raw = env.OKF_BUNDLE_PATH;
@@ -21,15 +23,8 @@ export function getBundleRoot(env: NodeJS.ProcessEnv = process.env): string {
  * Rejects escapes outside the bundle.
  */
 export function resolveBundlePath(root: string, relPath: string): string {
-  return resolveUnderRoot(root, relPath);
+  return resolveFilesystemPath(root, relPath);
 }
 
-export function shouldSkipName(name: string): boolean {
-  return SKIP_NAMES.has(name) || name.startsWith(".");
-}
-
-export {
-  bundlePathToHref,
-  slugToRelPath,
-  toPosixRelative,
-} from "./url";
+export { shouldSkipName, toPosixRelative };
+export { bundlePathToHref, slugToRelPath } from "./url";

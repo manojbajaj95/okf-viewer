@@ -2,8 +2,6 @@
 
 import { FileTextIcon, FolderIcon } from "lucide-react";
 import Link from "next/link";
-import * as React from "react";
-import { isLogEntry, useEntryLog } from "@/components/entry-log-context";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -197,24 +195,10 @@ function EntryChrome({ kind, title }: { kind: string; title: string }) {
 export function EntryView({
   entry,
   backlinks = [],
-  logEntry,
 }: {
   entry: BundleEntry;
   backlinks?: ConceptSummary[];
-  logEntry?: BundleEntry;
 }) {
-  const { registerLog } = useEntryLog();
-  const logToRegister = isLogEntry(entry)
-    ? entry
-    : isLogEntry(logEntry)
-      ? logEntry
-      : null;
-
-  React.useEffect(() => {
-    registerLog(logToRegister, entry.kind === "log");
-    return () => registerLog(null);
-  }, [logToRegister, entry.kind, registerLog]);
-
   if (entry.kind === "missing") {
     return (
       <article className="w-full max-w-3xl space-y-6">

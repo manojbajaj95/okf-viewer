@@ -1,13 +1,12 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { buildBundleGraph, getBundleRoot } from "@/lib/bundle";
+import { openBundle } from "@/lib/bundle";
 import { bundlePathToHref } from "@/lib/bundle/url";
 
 export const dynamic = "force-dynamic";
 
 export default function TagsPage() {
-  const root = getBundleRoot();
-  const graph = buildBundleGraph(root);
+  const graph = openBundle().graph;
 
   const byTag = new Map<string, typeof graph.nodes>();
   for (const node of graph.nodes) {

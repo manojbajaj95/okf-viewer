@@ -1,48 +1,7 @@
-import { readdirSync, readFileSync } from "node:fs";
-import { join, normalize, relative, resolve, sep } from "node:path";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import matter from "gray-matter";
-
-const SKIP_NAMES = new Set([".git", "node_modules", ".DS_Store", ".next"]);
-
-function shouldSkipName(name) {
-  return SKIP_NAMES.has(name) || name.startsWith(".");
-}
-
-function resolveUnderRoot(root, relPath) {
-  const cleaned = relPath.replace(/^\/+/, "").replaceAll("\\", "/");
-  const absolute = normalize(
-    resolve(root, ...cleaned.split("/").filter(Boolean)),
-  );
-  const rel = relative(root, absolute);
-  if (rel.startsWith("..") || !absolute.startsWith(root)) {
-    throw new Error(`Path escapes bundle root: ${relPath}`);
-  }
-  return absolute;
-}
-
-function resolveBundlePath(root, relPath) {
-  return resolveUnderRoot(root, relPath);
-}
-
-function toPosixRelative(root, absolute) {
-  return relative(root, absolute).split(sep).join("/");
-}
-
-function walkMarkdownFiles(root, dirAbs, files) {
-  for (const entry of readdirSync(dirAbs, { withFileTypes: true })) {
-    if (shouldSkipName(entry.name)) {
-      continue;
-    }
-    const abs = join(dirAbs, entry.name);
-    if (entry.isDirectory()) {
-      walkMarkdownFiles(root, abs, files);
-      continue;
-    }
-    if (entry.isFile() && entry.name.endsWith(".md")) {
-      files.push(toPosixRelative(root, abs));
-    }
-  }
-}
+import { resolveBundlePath, walkBundle } from "./filesystem.mjs";
 
 function validateIndex(relPath, raw) {
   if (relPath === "index.md") {
@@ -143,12 +102,11 @@ function validateConcept(relPath, raw) {
 export function validateBundle(rootInput) {
   const root = resolve(rootInput);
   const errors = [];
-  const files = [];
-  walkMarkdownFiles(root, root, files);
+  const { markdownFiles } = walkBundle(root);
 
   let conceptCount = 0;
 
-  for (const relPath of files) {
+  for (const relPath of markdownFiles) {
     const abs = resolveBundlePath(root, relPath);
     const raw = readFileSync(abs, "utf8");
     const name = relPath.split("/").pop() ?? "";

@@ -41,10 +41,16 @@ okf-viewer open --bind 0.0.0.0 --port 3847   # listen on all interfaces
 - **Concept View.** Title, type, tags, and description from the Concept, plus rendered markdown.
 - **Bundle Links.** In-bundle links stay in the Viewer; external URLs open outside; missing targets link to a clear missing-Concept state.
 - **Backlinks.** Concept View shows other Concepts that link to the current one.
-- **Graph, Tags, Types.** Secondary browse surfaces for cross-links and frontmatter grouping.
+- **Graph, Tags, Types.** Searchable, filterable cross-link graph with type-colored nodes and switchable layouts, plus frontmatter grouping.
 - **Validate.** `okf-viewer validate <dir>` checks OKF v0.1 §9 conformance (CLI only; open stays best-effort).
 - **Best-effort.** Opens any local folder of markdown. Valid Concepts get Concept View; other `.md` files stay readable.
 - **Light / dark.** Theme toggle when you need it.
+
+## Knowledge Graph
+
+Open **Graph** from the sidebar to explore cross-links between Concepts. Search by title, Concept ID, or tag; filter by frontmatter type; and switch between vertical and horizontal layouts. Selecting a node shows its type, ID, description, and tags before you open the full Concept View.
+
+The graph is a secondary navigation surface: the Directory Tree and Indexes remain the primary way to understand and browse a Bundle. Missing link targets are handled in Concept View rather than rendered as graph nodes.
 
 ## What is OKF?
 

@@ -4,6 +4,7 @@
 
 ```bash
 bun install
+OKF_BUNDLE_PATH=./fixtures/sample-bundle bun run dev
 ```
 
 ## Checks
@@ -15,12 +16,14 @@ bun run test
 bun run build
 ```
 
-Smoke the viewer locally:
+Smoke the production Viewer locally:
 
 ```bash
 bun run build
 bun run okf-viewer -- open ./fixtures/sample-bundle --no-open
 ```
+
+For graph changes, manually check search by title, ID, and tag; type filtering; both layouts; reset; node selection; and **Open Concept** in light and dark themes.
 
 ## Pull requests
 
@@ -36,10 +39,10 @@ One-time on npmjs.com for package `okf-viewer`: Settings → Trusted Publisher �
 
 ## Engineering principles
 
-- **YAGNI** — only build what v0.1 needs (browse via CLI Open).
-- Prefer trusted libraries over custom parsers/servers for solved problems.
+- **YAGNI** — keep the Viewer browse-first; graph, tags, and types are secondary navigation surfaces.
+- Prefer trusted libraries over custom parsers, servers, or graph engines for solved problems.
 - Prefer deep modules (small surface, clear responsibility) over shallow wrappers.
-- Separation of concerns: CLI opens and serves; route handlers read the Bundle; UI browses.
+- Separation of concerns: the CLI opens and serves, server-side Bundle modules read files, and client components provide interaction. Never import filesystem modules into client components.
 - No premature optimization; comment the *why*; update docs with behavior changes.
 
 See `CONTEXT.md` for product language.

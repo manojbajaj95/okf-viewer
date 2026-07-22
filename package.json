@@ -10,6 +10,7 @@
   "files": [
     "bin",
     "src/lib/cli-args.mjs",
+    "src/lib/bundle/filesystem.mjs",
     "src/lib/bundle/validate-bundle.mjs",
     ".next/standalone"
   ],

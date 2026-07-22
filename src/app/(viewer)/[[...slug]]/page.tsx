@@ -1,14 +1,6 @@
-import { dirname } from "node:path";
 import { EntryView } from "@/components/EntryView";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import {
-  buildBundleGraph,
-  getBacklinksFor,
-  getBundleRoot,
-  normalizeConceptId,
-  readEntry,
-  slugToRelPath,
-} from "@/lib/bundle";
+import { normalizeConceptId, openBundle, slugToRelPath } from "@/lib/bundle";
 
 export const dynamic = "force-dynamic";
 
@@ -21,34 +13,17 @@ export default async function ViewerPage({
   const rel = slugToRelPath(slug);
 
   try {
-    const root = getBundleRoot();
-    const entry = readEntry(rel, root);
-    const logDir =
-      entry.kind === "directory"
-        ? entry.path
-        : entry.kind === "missing" || entry.kind === "log"
-          ? null
-          : dirname(entry.path).replace(/^\.$/, "");
-    const logEntry =
-      logDir === null
-        ? undefined
-        : readEntry(logDir ? `${logDir}/log.md` : "log.md", root);
-    const graph = buildBundleGraph(root);
+    const bundle = openBundle();
+    const entry = bundle.readEntry(rel);
     const conceptId =
       entry.kind === "concept"
         ? normalizeConceptId(entry.path)
         : entry.kind === "missing"
           ? normalizeConceptId(entry.path)
           : null;
-    const backlinks = conceptId ? getBacklinksFor(conceptId, graph) : [];
+    const backlinks = conceptId ? bundle.backlinksFor(conceptId) : [];
 
-    return (
-      <EntryView
-        entry={entry}
-        backlinks={backlinks}
-        logEntry={logEntry?.kind === "log" ? logEntry : undefined}
-      />
-    );
+    return <EntryView entry={entry} backlinks={backlinks} />;
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     return (
