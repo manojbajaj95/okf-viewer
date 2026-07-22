@@ -73,7 +73,7 @@ export function AppSidebar({
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="h-14 justify-center gap-0 border-b border-sidebar-border px-2 py-0">
+      <SidebarHeader className="h-14 justify-center gap-0 border-b border-sidebar-border px-2 py-0 group-data-[collapsible=icon]:items-center">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -121,6 +121,7 @@ export function AppSidebar({
                         <SidebarMenuButton
                           isActive={pathname === href}
                           tooltip={label}
+                          className="pr-8"
                           render={<Link href={href} />}
                         >
                           <Icon />

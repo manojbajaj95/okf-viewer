@@ -103,7 +103,9 @@ export function ViewerShell({
     <TooltipProvider>
       <BundleGraphProvider graph={graph}>
         <EntryLogProvider routes={logRoutes}>
-          <SidebarProvider>
+          <SidebarProvider
+            style={{ "--sidebar-width": "17rem" } as React.CSSProperties}
+          >
             <AppSidebar
               nodes={nodes}
               bundleLabel={bundleLabel}

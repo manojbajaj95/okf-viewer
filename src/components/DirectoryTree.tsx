@@ -55,7 +55,7 @@ function FileIcon({
 }
 
 const chevronClass =
-  "inline-flex size-7 shrink-0 items-center justify-center rounded-md text-sidebar-foreground/55 transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground motion-reduce:transition-none";
+  "inline-flex size-7 shrink-0 items-center justify-center rounded-md text-sidebar-foreground/55 transition-colors duration-150 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:hidden motion-reduce:transition-none";
 
 const iconMuted = "text-sidebar-foreground/55";
 const iconActive = "text-sidebar-accent-foreground";
@@ -116,7 +116,7 @@ function TreeNodes({
 
           return (
             <Collapsible
-              key={node.path || node.name}
+              key={`${node.path || node.name}:${open}`}
               defaultOpen={open}
               className="group/collapsible"
             >

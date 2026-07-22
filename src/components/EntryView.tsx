@@ -1,6 +1,12 @@
 "use client";
 
-import { FileTextIcon, FolderIcon } from "lucide-react";
+import {
+  CalendarClockIcon,
+  ExternalLinkIcon,
+  FileTextIcon,
+  FolderIcon,
+  TagsIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -90,65 +96,117 @@ function DirectoryChildren({
   );
 }
 
+function formatTimestamp(value: unknown): string {
+  const raw = String(value);
+  const date = new Date(raw);
+
+  if (Number.isNaN(date.getTime())) {
+    return raw;
+  }
+
+  return new Intl.DateTimeFormat("en", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(date);
+}
+
+function resourceLabel(value: unknown): string {
+  try {
+    return new URL(String(value)).hostname.replace(/^www\./, "");
+  } catch {
+    return "Open resource";
+  }
+}
+
 function ConceptHeader({
   frontmatter,
 }: {
   frontmatter: Extract<BundleEntry, { kind: "concept" }>["frontmatter"];
 }) {
+  return (
+    <header className="border-b border-border/70 pb-8">
+      <Badge variant="secondary" className="mb-5">
+        {frontmatter.type}
+      </Badge>
+      <h1 className="max-w-3xl text-4xl leading-tight font-semibold tracking-tight text-foreground sm:text-5xl">
+        {frontmatter.title ?? "Untitled"}
+      </h1>
+      {frontmatter.description ? (
+        <p className="mt-4 max-w-2xl text-lg leading-8 text-muted-foreground text-pretty">
+          {frontmatter.description}
+        </p>
+      ) : null}
+    </header>
+  );
+}
+
+function ConceptDetails({
+  frontmatter,
+}: {
+  frontmatter: Extract<BundleEntry, { kind: "concept" }>["frontmatter"];
+}) {
   const tags = frontmatter.tags ?? [];
-  const hasMeta = Boolean(frontmatter.resource || frontmatter.timestamp);
 
   return (
-    <header className="mb-8 space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <Badge variant="secondary">{frontmatter.type}</Badge>
-        {tags.map((tag) => (
-          <Badge key={tag} variant="outline">
-            {tag}
-          </Badge>
-        ))}
-      </div>
-      <div className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-          {frontmatter.title ?? "Untitled"}
-        </h1>
-        {frontmatter.description ? (
-          <p className="max-w-prose text-base leading-relaxed text-muted-foreground text-pretty">
-            {frontmatter.description}
+    <aside
+      aria-label="Concept details"
+      className="space-y-6 lg:sticky lg:top-22"
+    >
+      <h2 className="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+        Details
+      </h2>
+      {frontmatter.resource ? (
+        <div className="space-y-2">
+          <p className="flex items-center gap-2 text-sm font-medium">
+            <ExternalLinkIcon className="size-4 text-muted-foreground" />
+            Resource
           </p>
-        ) : null}
-      </div>
-      {hasMeta ? (
-        <dl className="grid gap-x-4 gap-y-2 text-sm sm:grid-cols-[6.5rem_1fr]">
-          {frontmatter.resource ? (
-            <>
-              <dt className="font-medium text-muted-foreground">Resource</dt>
-              <dd>
-                <a
-                  href={String(frontmatter.resource)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="break-all text-primary underline-offset-4 transition-colors duration-150 hover:underline motion-reduce:transition-none"
-                >
-                  {String(frontmatter.resource)}
-                </a>
-              </dd>
-            </>
-          ) : null}
-          {frontmatter.timestamp ? (
-            <>
-              <dt className="font-medium text-muted-foreground">Updated</dt>
-              <dd>
-                <time className="font-mono text-xs text-foreground">
-                  {String(frontmatter.timestamp)}
-                </time>
-              </dd>
-            </>
-          ) : null}
-        </dl>
+          <a
+            href={String(frontmatter.resource)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex max-w-full items-center gap-1.5 text-sm font-medium text-primary underline-offset-4 transition-colors duration-150 hover:underline motion-reduce:transition-none"
+          >
+            <span className="truncate">
+              {resourceLabel(frontmatter.resource)}
+            </span>
+            <ExternalLinkIcon className="size-3.5 shrink-0" aria-hidden />
+          </a>
+        </div>
       ) : null}
-      <Separator />
-    </header>
+      {frontmatter.timestamp ? (
+        <div className="space-y-2">
+          <p className="flex items-center gap-2 text-sm font-medium">
+            <CalendarClockIcon className="size-4 text-muted-foreground" />
+            Updated
+          </p>
+          <time
+            dateTime={String(frontmatter.timestamp)}
+            title={String(frontmatter.timestamp)}
+            className="block text-sm text-muted-foreground"
+          >
+            {formatTimestamp(frontmatter.timestamp)}
+          </time>
+        </div>
+      ) : null}
+      {tags.length > 0 ? (
+        <div className="space-y-3">
+          <p className="flex items-center gap-2 text-sm font-medium">
+            <TagsIcon className="size-4 text-muted-foreground" />
+            Tags
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {tags.map((tag) => (
+              <Badge key={tag} variant="outline">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </aside>
   );
 }
 
@@ -158,8 +216,11 @@ function BacklinksSection({ backlinks }: { backlinks: ConceptSummary[] }) {
   }
 
   return (
-    <section className="mb-8 space-y-3" aria-label="Linked from">
-      <h2 className="text-sm font-medium text-foreground">Linked from</h2>
+    <section
+      className="mt-12 space-y-3 border-t border-border/70 pt-8"
+      aria-label="Linked from"
+    >
+      <h2 className="text-lg font-semibold text-foreground">Linked from</h2>
       <ul className="divide-y divide-border rounded-lg border border-border">
         {backlinks.map((item) => (
           <li key={item.id}>
@@ -177,7 +238,6 @@ function BacklinksSection({ backlinks }: { backlinks: ConceptSummary[] }) {
           </li>
         ))}
       </ul>
-      <Separator />
     </section>
   );
 }
@@ -219,11 +279,29 @@ export function EntryView({
   }
 
   if (entry.kind === "concept") {
+    const hasDetails = Boolean(
+      entry.frontmatter.resource ||
+        entry.frontmatter.timestamp ||
+        entry.frontmatter.tags?.length,
+    );
+
     return (
-      <article className="w-full max-w-3xl">
+      <article className="w-full max-w-5xl">
         <ConceptHeader frontmatter={entry.frontmatter} />
-        <BacklinksSection backlinks={backlinks} />
-        <MarkdownBody body={entry.body} fromRelPath={entry.path} />
+        <div
+          className={cn(
+            "mt-8 grid items-start gap-10",
+            hasDetails && "lg:grid-cols-[minmax(0,1fr)_15rem] lg:gap-14",
+          )}
+        >
+          <div className="min-w-0">
+            <MarkdownBody body={entry.body} fromRelPath={entry.path} />
+            <BacklinksSection backlinks={backlinks} />
+          </div>
+          {hasDetails ? (
+            <ConceptDetails frontmatter={entry.frontmatter} />
+          ) : null}
+        </div>
       </article>
     );
   }
