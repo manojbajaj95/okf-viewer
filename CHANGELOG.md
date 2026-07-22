@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/manojbajaj95/okf-viewer/compare/okf-viewer-v0.4.0...okf-viewer-v0.4.1) (2026-07-22)
+
+
+### Bug Fixes
+
+* trigger publishing after release creation ([a9f8ee6](https://github.com/manojbajaj95/okf-viewer/commit/a9f8ee6d83aef75096e4ebe918b75268e1460484))
+
 ## [0.4.0](https://github.com/manojbajaj95/okf-viewer/compare/okf-viewer-v0.3.0...okf-viewer-v0.4.0) (2026-07-22)
 
 
